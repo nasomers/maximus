@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      # Linux-specific dependencies
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Type check frontend
+        run: npm run typecheck
+
+      - name: Rust checks
+        working-directory: src-tauri
+        run: |
+          cargo fmt --check
+          cargo clippy -- -D warnings
+
+      - name: Run Rust tests
+        working-directory: src-tauri
+        run: cargo test
+
+      # Build check (doesn't produce artifacts, just verifies it compiles)
+      - name: Build check
+        run: npm run tauri build -- --debug

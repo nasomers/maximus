@@ -1,0 +1,11 @@
+pub mod analytics;
+pub mod claude_code;
+pub mod github;
+pub mod memory;
+pub mod projects;
+pub mod prompts;
+pub mod pty;
+pub mod quick_commands;
+pub mod sessions;
+pub mod snapshots;
+pub mod tray;

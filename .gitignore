@@ -1,0 +1,55 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment & secrets - NEVER commit these
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test.local
+.env.production
+.env.production.local
+.env*.local
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+.secrets/
+config.local.*
+*.secret.*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Rust
+src-tauri/target/
+
+# Tauri
+src-tauri/gen/
+
+# Local Maximus data (for development)
+.maximus/
+
+# Claude plans
+.claude/

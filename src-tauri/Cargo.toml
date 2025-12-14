@@ -1,0 +1,32 @@
+[package]
+name = "maximus"
+version = "0.1.0"
+description = "Claude Code session companion - snapshots, memory, and efficiency tracking"
+authors = ["you"]
+edition = "2021"
+
+[lib]
+name = "maximus_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.31", features = ["bundled"] }
+git2 = "0.19"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dirs = "5"
+glob = "0.3"
+walkdir = "2"
+thiserror = "1"
+tokio = { version = "1", features = ["time", "sync", "io-util", "rt-multi-thread"] }
+portable-pty = "0.8"
+lazy_static = "1.4"
+
