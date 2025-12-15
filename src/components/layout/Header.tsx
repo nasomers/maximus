@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Settings, Zap, FolderPlus, Check, Folder, Loader2, Trash2, Github, Cloud, CloudOff } from "lucide-react";
+import { ChevronDown, Settings, Zap, FolderPlus, Check, Folder, Loader2, Trash2, Github, Cloud, CloudOff, HelpCircle } from "lucide-react";
 import { MaximusLogo } from "@/components/ui/MaximusLogo";
 import { useProjectStore } from "@/stores/projectStore";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SettingsModal } from "@/components/settings/SettingsModal";
+import { SettingsModal, SettingsTab } from "@/components/settings/SettingsModal";
+import { HelpModal } from "@/components/help/HelpModal";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useGhAuthStatus } from "@/hooks/useGitHub";
 
@@ -33,6 +34,13 @@ export function Header() {
   const queryClient = useQueryClient();
   const [isInitializing, setIsInitializing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>("appearance");
+
+  const openSettings = (tab: SettingsTab = "appearance") => {
+    setSettingsTab(tab);
+    setShowSettings(true);
+  };
 
   const projectName = currentProject?.name ?? "No project";
   const usage = 42; // TODO: Connect to real usage data
@@ -194,12 +202,12 @@ export function Header() {
 
           {/* GitHub & Sync Status */}
           <TooltipProvider>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {/* GitHub Status */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    onClick={() => setShowSettings(true)}
+                    onClick={() => openSettings("sync")}
                     className={cn(
                       "flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors",
                       ghAuth?.authenticated
@@ -218,7 +226,7 @@ export function Header() {
                 <TooltipContent>
                   {ghAuth?.authenticated
                     ? `GitHub: ${ghAuth.username}`
-                    : "GitHub: Not authenticated"}
+                    : "GitHub: Not authenticated - click to configure"}
                 </TooltipContent>
               </Tooltip>
 
@@ -226,9 +234,9 @@ export function Header() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    onClick={() => setShowSettings(true)}
+                    onClick={() => openSettings("sync")}
                     className={cn(
-                      "flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors",
+                      "flex items-center gap-1.5 px-2 py-1.5 rounded-md transition-colors",
                       sync.enabled && sync.repoUrl
                         ? "text-green-500 hover:bg-green-500/10"
                         : "text-muted-foreground hover:bg-secondary/50"
@@ -239,21 +247,34 @@ export function Header() {
                     ) : (
                       <CloudOff className="w-4 h-4" />
                     )}
+                    <span className="text-xs font-medium hidden sm:inline">
+                      {sync.enabled && sync.repoUrl ? "Synced" : "Sync"}
+                    </span>
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
                   {sync.enabled && sync.repoUrl
-                    ? `Synced: ${sync.repoUrl}`
-                    : "Cloud sync not configured"}
+                    ? `Memory synced to ${sync.repoUrl}`
+                    : "Memory sync not configured - click to set up"}
                 </TooltipContent>
               </Tooltip>
             </div>
           </TooltipProvider>
 
+          {/* Help */}
+          <button
+            onClick={() => setShowHelp(true)}
+            className="p-2 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+            title="Help"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
+
           {/* Settings */}
           <button
-            onClick={() => setShowSettings(true)}
+            onClick={() => openSettings("appearance")}
             className="p-2 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+            title="Settings"
           >
             <Settings className="w-5 h-5" />
           </button>
@@ -261,7 +282,14 @@ export function Header() {
       </header>
 
       {/* Settings Modal */}
-      <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
+      <SettingsModal
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        initialTab={settingsTab}
+      />
+
+      {/* Help Modal */}
+      <HelpModal open={showHelp} onOpenChange={setShowHelp} />
     </>
   );
 }

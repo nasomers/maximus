@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,6 @@ import {
   Palette,
   Cloud,
   Terminal,
-  HelpCircle,
   Camera,
   Sun,
   Moon,
@@ -23,23 +22,30 @@ import { cn } from "@/lib/utils";
 import { useSettingsStore, Theme } from "@/stores/settingsStore";
 import { useGhAuthStatus } from "@/hooks/useGitHub";
 
+export type SettingsTab = "appearance" | "terminal" | "snapshots" | "sync";
+
 interface SettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: SettingsTab;
 }
-
-type SettingsTab = "appearance" | "terminal" | "snapshots" | "sync" | "help";
 
 const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "terminal", label: "Terminal", icon: Terminal },
   { id: "snapshots", label: "Snapshots", icon: Camera },
   { id: "sync", label: "Cloud Sync", icon: Cloud },
-  { id: "help", label: "Help", icon: HelpCircle },
 ];
 
-export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
-  const [activeTab, setActiveTab] = useState<SettingsTab>("appearance");
+export function SettingsModal({ open, onOpenChange, initialTab = "appearance" }: SettingsModalProps) {
+  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
+
+  // Update active tab when initialTab changes (e.g., opening from sync icon)
+  useEffect(() => {
+    if (open) {
+      setActiveTab(initialTab);
+    }
+  }, [open, initialTab]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -74,7 +80,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             {activeTab === "terminal" && <TerminalSettings />}
             {activeTab === "snapshots" && <SnapshotSettings />}
             {activeTab === "sync" && <SyncSettings />}
-            {activeTab === "help" && <HelpSection />}
           </div>
         </div>
       </DialogContent>
@@ -272,77 +277,6 @@ function SyncSettings() {
   );
 }
 
-function HelpSection() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-sm font-medium mb-3">Keyboard Shortcuts</h3>
-        <div className="space-y-2">
-          <ShortcutRow keys={["Ctrl", "S"]} action="Save snapshot" />
-          <ShortcutRow keys={["Ctrl", "Z"]} action="Undo last snapshot" />
-          <ShortcutRow keys={["Ctrl", "`"]} action="Focus terminal" />
-          <ShortcutRow keys={["Ctrl", "1-6"]} action="Switch tabs" />
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-medium mb-3">Quick Start</h3>
-        <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-          <li>Select or create a project from the header dropdown</li>
-          <li>Create a snapshot before making changes</li>
-          <li>Use the terminal to run Claude Code</li>
-          <li>If something breaks, restore from snapshot</li>
-          <li>Commit and push when ready</li>
-        </ol>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-medium mb-3">Features</h3>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <FeatureCard title="Snapshots" description="Save and restore project state" />
-          <FeatureCard title="Terminal" description="Full PTY with quick commands" />
-          <FeatureCard title="Memory" description="Persistent project context" />
-          <FeatureCard title="Prompts" description="Reusable prompt library" />
-          <FeatureCard title="Analytics" description="Claude Code usage stats" />
-          <FeatureCard title="GitHub" description="Commit, push, and PR" />
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-medium mb-3">Links</h3>
-        <div className="space-y-2">
-          <a
-            href="https://github.com/nasomers/maximus"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-primary hover:underline"
-          >
-            <Github className="w-4 h-4" />
-            GitHub Repository
-            <ExternalLink className="w-3 h-3" />
-          </a>
-          <a
-            href="https://github.com/nasomers/maximus/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-primary hover:underline"
-          >
-            <HelpCircle className="w-4 h-4" />
-            Report an Issue
-            <ExternalLink className="w-3 h-3" />
-          </a>
-        </div>
-      </div>
-
-      <div className="pt-4 border-t border-border">
-        <p className="text-xs text-muted-foreground text-center">
-          Maximus v0.1.0
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // Helper components
 
 function ToggleSetting({
@@ -384,29 +318,3 @@ function ToggleSetting({
   );
 }
 
-function ShortcutRow({ keys, action }: { keys: string[]; action: string }) {
-  return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="text-muted-foreground">{action}</span>
-      <div className="flex items-center gap-1">
-        {keys.map((key, i) => (
-          <span key={i}>
-            <kbd className="px-2 py-0.5 bg-secondary rounded text-xs font-mono">
-              {key}
-            </kbd>
-            {i < keys.length - 1 && <span className="text-muted-foreground mx-1">+</span>}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FeatureCard({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="bg-secondary/30 px-3 py-2 rounded-lg">
-      <div className="font-medium text-sm">{title}</div>
-      <div className="text-xs text-muted-foreground">{description}</div>
-    </div>
-  );
-}
