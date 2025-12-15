@@ -44,32 +44,34 @@ export function HelpModal({ open, onOpenChange }: HelpModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[600px] p-0 gap-0">
-        <DialogHeader className="px-6 py-4 border-b border-border">
+      <DialogContent className="max-w-3xl h-[80vh] p-0 gap-0 bg-background border-border flex flex-col">
+        <DialogHeader className="px-6 py-4 border-b border-border bg-card shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary" />
             Help & Documentation
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex h-[calc(100%-60px)]">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Sidebar */}
-          <div className="w-52 border-r border-border p-3 space-y-1 bg-secondary/20">
-            {sections.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActiveSection(id)}
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all",
-                  activeSection === id
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </button>
-            ))}
+          <div className="w-52 border-r border-border p-3 space-y-1 bg-card shrink-0 flex flex-col overflow-y-auto">
+            <div className="space-y-1">
+              {sections.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveSection(id)}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all",
+                    activeSection === id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </button>
+              ))}
+            </div>
 
             <div className="pt-4 mt-4 border-t border-border">
               <a
@@ -94,13 +96,13 @@ export function HelpModal({ open, onOpenChange }: HelpModalProps) {
               </a>
             </div>
 
-            <div className="absolute bottom-4 left-3 right-3 text-center">
+            <div className="mt-auto pt-4 text-center">
               <p className="text-xs text-muted-foreground">Maximus v0.1.0</p>
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-6 overflow-y-auto bg-background">
             {activeSection === "getting-started" && <GettingStarted />}
             {activeSection === "features" && <Features />}
             {activeSection === "shortcuts" && <Shortcuts />}

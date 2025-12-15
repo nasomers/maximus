@@ -3,9 +3,8 @@ mod commands;
 mod db;
 mod git;
 mod pty;
-mod tray;
 
-use commands::{analytics, claude_code, github, memory, projects, prompts, pty as pty_commands, quick_commands, sessions, snapshots, sync, tray as tray_commands};
+use commands::{analytics, claude_code, github, memory, projects, prompts, pty as pty_commands, quick_commands, sessions, snapshots, sync};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -17,13 +16,6 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .setup(|app| {
-            // Set up system tray
-            if let Err(e) = tray::setup_tray(app) {
-                eprintln!("Failed to setup system tray: {}", e);
-            }
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![
             // Snapshot commands
             snapshots::create_snapshot,
@@ -60,10 +52,6 @@ pub fn run() {
             analytics::get_weekly_stats,
             analytics::get_overall_stats,
             analytics::get_project_stats,
-            // Tray commands
-            tray_commands::set_tray_state,
-            tray_commands::flash_tray_state,
-            tray_commands::update_tray_usage,
             // PTY commands
             pty_commands::pty_spawn,
             pty_commands::pty_write,

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useProjectStore } from "@/stores/projectStore";
 import { useMemory, useSetMemory, useDeleteMemory } from "@/hooks/useMemory";
 import { MemoryItem } from "@/lib/tauri";
@@ -19,6 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Brain,
@@ -86,12 +97,21 @@ function MemoryEditor({ item, open, onOpenChange }: MemoryEditorProps) {
   const handleSave = async () => {
     if (!key.trim() || !value.trim()) return;
 
-    await setMemoryMutation.mutateAsync({
-      key: key.trim(),
-      value: value.trim(),
-      category: category || undefined,
-    });
-    onOpenChange(false);
+    try {
+      await setMemoryMutation.mutateAsync({
+        key: key.trim(),
+        value: value.trim(),
+        category: category || undefined,
+      });
+      onOpenChange(false);
+      toast.success(isEditing ? "Memory updated" : "Memory added", {
+        description: `"${key.trim()}" saved successfully`,
+      });
+    } catch (e) {
+      toast.error("Failed to save memory", {
+        description: e instanceof Error ? e.message : "An error occurred",
+      });
+    }
   };
 
   return (
@@ -242,6 +262,8 @@ export function Memory() {
   const [editingItem, setEditingItem] = useState<MemoryItem | null>(null);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<MemoryItem | null>(null);
 
   // Filter memories
   const filteredMemories = memories.filter((item) => {
@@ -273,8 +295,27 @@ export function Memory() {
     setEditorOpen(true);
   };
 
-  const handleDelete = async (key: string) => {
-    await deleteMemoryMutation.mutateAsync(key);
+  const handleDeleteClick = (item: MemoryItem) => {
+    setItemToDelete(item);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      await deleteMemoryMutation.mutateAsync(itemToDelete.key);
+      toast.success("Memory deleted", {
+        description: `"${itemToDelete.key}" has been removed`,
+      });
+    } catch (e) {
+      toast.error("Failed to delete memory", {
+        description: e instanceof Error ? e.message : "An error occurred",
+      });
+    } finally {
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
+    }
   };
 
   if (!currentProject) {
@@ -395,7 +436,7 @@ export function Memory() {
                 key={item.id}
                 item={item}
                 onEdit={() => handleEdit(item)}
-                onDelete={() => handleDelete(item.key)}
+                onDelete={() => handleDeleteClick(item)}
               />
             ))}
           </div>
@@ -408,6 +449,27 @@ export function Memory() {
         open={editorOpen}
         onOpenChange={setEditorOpen}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Memory Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{itemToDelete?.key}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

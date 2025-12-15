@@ -6,60 +6,74 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        background: "#0a0a0b",
-        foreground: "#fafafa",
-        card: {
-          DEFAULT: "#141416",
-          foreground: "#fafafa",
-        },
-        popover: {
-          DEFAULT: "#141416",
-          foreground: "#fafafa",
-        },
-        primary: {
-          DEFAULT: "#3b82f6",
-          foreground: "#fafafa",
-        },
-        secondary: {
-          DEFAULT: "#27272a",
-          foreground: "#fafafa",
-        },
-        muted: {
-          DEFAULT: "#27272a",
-          foreground: "#a1a1aa",
-        },
-        accent: {
-          DEFAULT: "#27272a",
-          foreground: "#fafafa",
-        },
-        destructive: {
-          DEFAULT: "#ef4444",
-          foreground: "#fafafa",
-        },
-        success: {
-          DEFAULT: "#22c55e",
-          foreground: "#fafafa",
-        },
-        warning: {
-          DEFAULT: "#eab308",
-          foreground: "#0a0a0b",
-        },
-        border: "#27272a",
-        input: "#27272a",
-        ring: "#3b82f6",
-      },
-      borderRadius: {
-        lg: "0.5rem",
-        md: "0.375rem",
-        sm: "0.25rem",
-      },
-      fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
-      },
-    },
+  	extend: {
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			success: {
+  				DEFAULT: '#22c55e',
+  				foreground: '#fafafa'
+  			},
+  			warning: {
+  				DEFAULT: '#eab308',
+  				foreground: '#0a0a0b'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		fontFamily: {
+  			sans: [
+  				'Inter',
+  				'system-ui',
+  				'sans-serif'
+  			],
+  			mono: [
+  				'JetBrains Mono',
+  				'monospace'
+  			]
+  		}
+  	}
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }

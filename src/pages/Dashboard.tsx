@@ -4,6 +4,7 @@ import { UsageCard } from "@/components/dashboard/UsageCard";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecentSessions } from "@/components/dashboard/RecentSessions";
 import { FileExplorer } from "@/components/dashboard/FileExplorer";
+import { WelcomeBack } from "@/components/dashboard/WelcomeBack";
 import { NewProjectWizard, ProjectConfig } from "@/components/project/NewProjectWizard";
 import { useCurrentProject } from "@/hooks/useProjects";
 import { useProjectStore } from "@/stores/projectStore";
@@ -159,6 +160,10 @@ export function Dashboard() {
 
           {currentProject && (
             <>
+              <WelcomeBack
+                onStartSession={handleStart}
+                onViewHistory={() => setActiveTab("analytics")}
+              />
               <UsageCard />
               <QuickActions
                 onSave={handleSave}

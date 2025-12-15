@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -472,9 +473,16 @@ export function Snapshots() {
       // Perform restore
       await restoreMutation.mutateAsync(pendingRestoreSnapshot.id);
 
-      // Close dialog
+      // Close dialog and show success
       setShowFeedbackDialog(false);
       setPendingRestoreSnapshot(null);
+      toast.success("Restored successfully", {
+        description: `Reverted to "${pendingRestoreSnapshot.name}"`,
+      });
+    } catch (e) {
+      toast.error("Failed to restore", {
+        description: e instanceof Error ? e.message : "An error occurred",
+      });
     } finally {
       setRestoringId(null);
     }
@@ -491,8 +499,14 @@ export function Snapshots() {
       setShowCreateDialog(false);
       setNewSnapshotName("");
       setNewSnapshotDescription("");
+      toast.success("Snapshot created", {
+        description: `Saved "${newSnapshotName.trim()}"`,
+      });
     } catch (e) {
       console.error("Failed to create snapshot:", e);
+      toast.error("Failed to create snapshot", {
+        description: e instanceof Error ? e.message : "An error occurred",
+      });
     }
   };
 

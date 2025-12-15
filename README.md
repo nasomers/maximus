@@ -180,11 +180,14 @@ Build outputs:
 - Prompt library with tags and variables
 - Project memory system
 - Visual diff viewer and snapshot comparison
+- "Welcome back" dashboard with context from last Claude Code session
+- Toast notifications for user feedback
+- Delete confirmation dialogs for Memory and Prompts
+- Real-time usage stats in header from Claude Code data
 
 **In Progress:**
 - Session memory via Claude Code hooks (AI-generated session summaries)
 - Cross-machine sync via private `maximus-sync` GitHub repo
-- "Welcome back" dashboard with context from last session
 - Sensitive data scrubbing for synced content
 
 ## Security

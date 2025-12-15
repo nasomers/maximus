@@ -123,6 +123,12 @@ Reads Claude Code's native stats from `~/.claude/`:
 - Cost tracking
 - Activity patterns (hourly, daily)
 
+### UI Polish
+- **Toast Notifications**: Using sonner for success/error feedback on operations
+- **Delete Confirmations**: AlertDialog prompts before deleting memories or prompts
+- **WelcomeBack Component**: Shows last Claude Code session summary on dashboard
+- **Real-time Usage**: Header displays today's actual token usage from Claude Code
+
 ### Session Memory System
 Persistent memory that survives across Claude Code sessions:
 

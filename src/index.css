@@ -4,8 +4,7 @@
 
 @layer base {
   /* Dark theme (default) */
-  :root,
-  .dark {
+  :root {
     --background: 0 0% 4%;
     --foreground: 0 0% 98%;
     --card: 0 0% 7%;
@@ -26,6 +25,11 @@
     --input: 0 0% 14%;
     --ring: 217 91% 60%;
     --radius: 0.75rem;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
 
     /* Semantic colors */
     --success: 142 76% 36%;
@@ -55,6 +59,11 @@
     --border: 0 0% 88%;
     --input: 0 0% 88%;
     --ring: 217 91% 50%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
 
     /* Semantic colors */
     --success: 142 76% 36%;
@@ -62,9 +71,7 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }

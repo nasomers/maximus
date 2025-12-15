@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronDown, Settings, Zap, FolderPlus, Check, Folder, Loader2, Trash2, Github, Cloud, CloudOff, HelpCircle } from "lucide-react";
 import { MaximusLogo } from "@/components/ui/MaximusLogo";
 import { useProjectStore } from "@/stores/projectStore";
@@ -25,11 +25,13 @@ import { SettingsModal, SettingsTab } from "@/components/settings/SettingsModal"
 import { HelpModal } from "@/components/help/HelpModal";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useGhAuthStatus } from "@/hooks/useGitHub";
+import { useClaudeCodeStats, formatTokens } from "@/hooks/useClaudeCode";
 
 export function Header() {
   const { currentProject, setCurrentProject } = useProjectStore();
   const { data: projects = [] } = useProjects();
   const { data: ghAuth } = useGhAuthStatus();
+  const { data: claudeStats } = useClaudeCodeStats();
   const { sync } = useSettingsStore();
   const queryClient = useQueryClient();
   const [isInitializing, setIsInitializing] = useState(false);
@@ -43,12 +45,36 @@ export function Header() {
   };
 
   const projectName = currentProject?.name ?? "No project";
-  const usage = 42; // TODO: Connect to real usage data
 
-  // Usage color based on percentage
+  // Get today's usage from Claude Code stats
+  const todayUsage = useMemo(() => {
+    if (!claudeStats?.dailyActivity) return { messages: 0, tokens: 0 };
+
+    const today = new Date().toISOString().split("T")[0];
+    const todayActivity = claudeStats.dailyActivity.find(
+      (d) => d.date === today
+    );
+
+    // Get today's tokens from dailyModelTokens
+    const todayTokensEntry = claudeStats.dailyModelTokens?.find(
+      (d) => d.date === today
+    );
+    const todayTokens = todayTokensEntry
+      ? Object.values(todayTokensEntry.tokensByModel).reduce((sum, t) => sum + t, 0)
+      : 0;
+
+    return {
+      messages: todayActivity?.messageCount || 0,
+      tokens: todayTokens,
+    };
+  }, [claudeStats]);
+
+  // Usage indicator (messages as rough activity level)
+  const activityLevel = Math.min(100, (todayUsage.messages / 50) * 100);
+
   const getUsageColor = () => {
-    if (usage >= 80) return "bg-red-500";
-    if (usage >= 60) return "bg-yellow-500";
+    if (activityLevel >= 80) return "bg-red-500";
+    if (activityLevel >= 50) return "bg-yellow-500";
     return "bg-primary";
   };
 
@@ -184,18 +210,29 @@ export function Header() {
         {/* Right: Usage + Settings */}
         <div className="flex items-center gap-4">
           {/* Usage indicator */}
-          <div className="flex items-center gap-3 bg-secondary/30 px-3 py-1.5 rounded-lg">
-            <Zap className={cn("w-4 h-4", usage >= 80 ? "text-red-500" : usage >= 60 ? "text-yellow-500" : "text-primary")} />
-            <div className="flex items-center gap-2">
-              <div className="w-20 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className={cn("h-full transition-all duration-500 rounded-full", getUsageColor())}
-                  style={{ width: `${usage}%` }}
-                />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+              <div className="flex items-center gap-3 bg-secondary/30 px-3 py-1.5 rounded-lg cursor-default">
+                <Zap className={cn("w-4 h-4", activityLevel >= 80 ? "text-red-500" : activityLevel >= 50 ? "text-yellow-500" : "text-primary")} />
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div
+                      className={cn("h-full transition-all duration-500 rounded-full", getUsageColor())}
+                      style={{ width: `${activityLevel}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {todayUsage.messages > 0 ? formatTokens(todayUsage.tokens) : "0"}
+                  </span>
+                </div>
               </div>
-              <span className="text-xs font-medium text-muted-foreground w-8">{usage}%</span>
-            </div>
-          </div>
+            </TooltipTrigger>
+              <TooltipContent>
+                Today: {todayUsage.messages} messages, {formatTokens(todayUsage.tokens)} tokens
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           {/* Divider */}
           <div className="h-6 w-px bg-border" />

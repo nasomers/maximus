@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   usePrompts,
   useCreatePrompt,
@@ -24,6 +25,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare,
@@ -93,23 +104,35 @@ function PromptEditor({ prompt, open, onOpenChange }: PromptEditorProps) {
       .filter(Boolean);
     const variables = extractVariables(content);
 
-    if (isEditing && prompt) {
-      await updateMutation.mutateAsync({
-        id: prompt.id,
-        name: name.trim(),
-        content: content.trim(),
-        tags,
-        variables,
-      });
-    } else {
-      await createMutation.mutateAsync({
-        name: name.trim(),
-        content: content.trim(),
-        tags,
-        variables,
+    try {
+      if (isEditing && prompt) {
+        await updateMutation.mutateAsync({
+          id: prompt.id,
+          name: name.trim(),
+          content: content.trim(),
+          tags,
+          variables,
+        });
+        toast.success("Prompt updated", {
+          description: `"${name.trim()}" saved successfully`,
+        });
+      } else {
+        await createMutation.mutateAsync({
+          name: name.trim(),
+          content: content.trim(),
+          tags,
+          variables,
+        });
+        toast.success("Prompt created", {
+          description: `"${name.trim()}" added to library`,
+        });
+      }
+      onOpenChange(false);
+    } catch (e) {
+      toast.error("Failed to save prompt", {
+        description: e instanceof Error ? e.message : "An error occurred",
       });
     }
-    onOpenChange(false);
   };
 
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -297,6 +320,8 @@ export function Prompts() {
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [promptToDelete, setPromptToDelete] = useState<Prompt | null>(null);
 
   // Get all unique tags
   const allTags = [...new Set(prompts.flatMap((p) => p.tags))].sort();
@@ -322,12 +347,32 @@ export function Prompts() {
     setEditorOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteMutation.mutateAsync(id);
+  const handleDeleteClick = (prompt: Prompt) => {
+    setPromptToDelete(prompt);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!promptToDelete) return;
+
+    try {
+      await deleteMutation.mutateAsync(promptToDelete.id);
+      toast.success("Prompt deleted", {
+        description: `"${promptToDelete.name}" has been removed`,
+      });
+    } catch (e) {
+      toast.error("Failed to delete prompt", {
+        description: e instanceof Error ? e.message : "An error occurred",
+      });
+    } finally {
+      setDeleteConfirmOpen(false);
+      setPromptToDelete(null);
+    }
   };
 
   const handleUse = async (id: string) => {
     await useMutation.mutateAsync(id);
+    toast.success("Copied to clipboard");
   };
 
   return (
@@ -434,7 +479,7 @@ export function Prompts() {
                 key={prompt.id}
                 prompt={prompt}
                 onEdit={() => handleEdit(prompt)}
-                onDelete={() => handleDelete(prompt.id)}
+                onDelete={() => handleDeleteClick(prompt)}
                 onUse={() => handleUse(prompt.id)}
               />
             ))}
@@ -448,6 +493,27 @@ export function Prompts() {
         open={editorOpen}
         onOpenChange={setEditorOpen}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Prompt</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{promptToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
