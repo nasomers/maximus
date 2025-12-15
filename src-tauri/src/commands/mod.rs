@@ -8,4 +8,5 @@ pub mod pty;
 pub mod quick_commands;
 pub mod sessions;
 pub mod snapshots;
+pub mod sync;
 pub mod tray;

@@ -15,13 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { SettingsModal } from "@/components/settings/SettingsModal";
 
 export function Header() {
   const { currentProject, setCurrentProject } = useProjectStore();
@@ -195,22 +189,8 @@ export function Header() {
         </div>
       </header>
 
-      {/* Settings Dialog */}
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogDescription>
-              Configure Maximus preferences and options.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-6 text-center text-muted-foreground">
-            <Settings className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">Settings panel coming soon.</p>
-            <p className="text-xs mt-1">Configure themes, shortcuts, and more.</p>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Settings Modal */}
+      <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
     </>
   );
 }

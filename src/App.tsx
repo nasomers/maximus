@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppShell } from "@/components/layout/AppShell";
 import { TabBar } from "@/components/layout/TabBar";
@@ -7,16 +8,27 @@ import { TerminalPage } from "@/pages/TerminalPage";
 import { Memory } from "@/pages/Memory";
 import { Prompts } from "@/pages/Prompts";
 import { Analytics } from "@/pages/Analytics";
+import { SetupWizard } from "@/components/setup/SetupWizard";
 import { useAppStore } from "@/stores/appStore";
+import { useSettingsStore } from "@/stores/settingsStore";
 import { useTray } from "@/hooks/useTray";
 
 const queryClient = new QueryClient();
 
 function App() {
   const { activeTab, setActiveTab } = useAppStore();
+  const { setupComplete } = useSettingsStore();
+  const [showSetup, setShowSetup] = useState(false);
 
   // Initialize tray integration
   useTray();
+
+  // Check if first-time setup is needed
+  useEffect(() => {
+    if (!setupComplete) {
+      setShowSetup(true);
+    }
+  }, [setupComplete]);
 
   const renderPage = () => {
     switch (activeTab) {
@@ -47,6 +59,12 @@ function App() {
         <AppShell>{renderPage()}</AppShell>
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
+
+      {/* First-time setup wizard */}
+      <SetupWizard
+        open={showSetup}
+        onComplete={() => setShowSetup(false)}
+      />
     </QueryClientProvider>
   );
 }

@@ -5,7 +5,7 @@ mod git;
 mod pty;
 mod tray;
 
-use commands::{analytics, claude_code, github, memory, projects, prompts, pty as pty_commands, quick_commands, sessions, snapshots, tray as tray_commands};
+use commands::{analytics, claude_code, github, memory, projects, prompts, pty as pty_commands, quick_commands, sessions, snapshots, sync, tray as tray_commands};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -91,6 +91,11 @@ pub fn run() {
             github::git_init,
             github::create_github_repo,
             github::git_add_remote,
+            // Sync commands
+            sync::create_sync_repo,
+            sync::connect_sync_repo,
+            sync::sync_pull,
+            sync::sync_push,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
