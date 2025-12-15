@@ -1,34 +1,15 @@
 import { useState } from "react";
 import { Terminal } from "@/components/terminal/Terminal";
-import { TerminalActionBar } from "@/components/terminal/TerminalActionBar";
 import { TerminalSidePanel } from "@/components/terminal/TerminalSidePanel";
 import { RiskyCommandWarning } from "@/components/terminal/RiskyCommandWarning";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useProjectStore } from "@/stores/projectStore";
-import { endSession } from "@/lib/tauri";
-import { useQueryClient } from "@tanstack/react-query";
 import { PanelRightClose, PanelRight } from "lucide-react";
 
 export function TerminalPage() {
   const { currentProject } = useProjectStore();
-  const { activeSession, setActiveSession, clearModifiedFiles, clearOutput, setSessionStartTime, currentRiskyDetection, dismissRiskyWarning } = useSessionStore();
-  const queryClient = useQueryClient();
+  const { currentRiskyDetection, dismissRiskyWarning } = useSessionStore();
   const [showSidePanel, setShowSidePanel] = useState(true);
-
-  const handleEndSession = async () => {
-    if (!activeSession) return;
-
-    try {
-      await endSession(activeSession.id);
-      setActiveSession(null);
-      setSessionStartTime(null);
-      clearModifiedFiles();
-      clearOutput();
-      queryClient.invalidateQueries({ queryKey: ["sessions"] });
-    } catch (error) {
-      console.error("Failed to end session:", error);
-    }
-  };
 
   if (!currentProject) {
     return (
@@ -59,12 +40,6 @@ export function TerminalPage() {
         <div className="h-full w-full">
           <Terminal id="main" />
         </div>
-
-        {/* Floating Action Bar */}
-        <TerminalActionBar
-          sessionActive={!!activeSession}
-          onEndSession={activeSession ? handleEndSession : undefined}
-        />
 
         {/* Risky Command Warning */}
         {currentRiskyDetection && (

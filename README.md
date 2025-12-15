@@ -175,7 +175,7 @@ Build outputs:
 
 ## Roadmap
 
-**Complete:**
+### Complete
 - Project creation and management
 - Snapshot system with time-travel and restore
 - Full terminal integration with quick commands
@@ -190,9 +190,126 @@ Build outputs:
 - Delete confirmation dialogs for Memory and Prompts
 - Real-time usage stats in header from Claude Code data
 
-**In Progress:**
+### In Progress
 - Cross-machine sync via private `maximus-sync` GitHub repo
-- AI-generated session summaries (hooks infrastructure complete, summary generation pending)
+
+### Future Ideas
+
+#### Token Efficiency (Get More Code Per Dollar)
+
+**Prompt Prefix Injection** *(High Priority)*
+- Auto-inject user preferences into every prompt via `UserPromptSubmit` hook
+- Per-project settings: "be concise," "no over-engineering," "match existing patterns"
+- Toggle between "verbose" and "code only" modes
+- Reduces wasted output tokens on explanations you don't need
+
+**Live Cost Indicator** *(High Priority)*
+- Real-time token counter visible during sessions
+- Estimated dollar cost updated live
+- Makes waste immediately visible so you can course-correct
+
+**"What Failed" Memory** *(High Priority)*
+- Track rejected approaches per project
+- Auto-inject as context: "Previously tried X, didn't work because Y"
+- Prevents Claude from repeating the same mistakes across sessions
+
+**Spend Alerts**
+- Configurable thresholds: notify at $10/day, $30/week, etc.
+- Visual warning when approaching limits
+- Daily/weekly spending summaries
+
+#### Session Efficiency
+
+**Codebase Index**
+- Pre-compute project structure on init (file tree, exports, component list)
+- Inject summary at session start so Claude doesn't re-explore
+- Update index when files change
+- Reduces "orientation" token burn at session start
+
+**Activity Indicator**
+- Parse terminal output to show what Claude is doing
+- "Reading files (3)..." "Running command..." "Writing code..."
+- Helps you know when to interrupt vs. wait
+
+**Prominent Interrupt Button**
+- Very visible "Stop" button during Claude operations
+- Quick redirect input without losing context
+- Cancel before Claude wastes tokens on wrong approach
+
+**Approach Preview**
+- Surface Claude's plan before it starts coding
+- Approve/reject before token spend
+- Catches wrong directions early
+
+#### Context Continuity
+
+**Semantic Memory System** *(Ambitious)*
+- Similar to [RLabs Memory](https://github.com/RLabs-Inc/memory)
+- AI-curated memories extracted from session transcripts
+- Selective injection based on message relevance
+- Only surfaces what matters for the current prompt
+
+**Session Handoff Notes**
+- Prompt to capture decisions at session end
+- Structured format: decisions made, open threads, next steps
+- Auto-inject on next session start
+
+**CLAUDE.md Integration**
+- UI for editing CLAUDE.md directly in Maximus
+- Templates for common sections (architecture, patterns, conventions)
+- Reminder to update after significant sessions
+
+#### Snapshots & Safety
+
+**Auto-Checkpoint on Risky Commands**
+- Detect risky operations before they run
+- Auto-create snapshot with option to cancel
+- More proactive than current warning system
+
+**Snapshot Annotations**
+- Add notes to snapshots after the fact
+- "This was before the auth refactor that broke everything"
+- Searchable snapshot history
+
+#### Analytics & Insights
+
+**Cost Per Task Type**
+- Track which types of prompts cost most
+- "Refactoring costs 3x more than bug fixes"
+- Optimize workflow based on data
+
+**Session Efficiency Score**
+- Tokens spent vs. code output ratio
+- Track improvement over time
+- Identify wasteful patterns
+
+**Command Success Rate**
+- Which Claude commands succeed vs. fail
+- Which file types cause most retries
+- Data-driven workflow optimization
+
+#### UX Improvements
+
+**Keyboard Shortcuts**
+- Global hotkeys for common actions
+- Quick snapshot: Cmd+S
+- Interrupt Claude: Escape
+- Toggle terminal panel: Cmd+T
+
+**Compact Mode**
+- Minimal UI for focused coding
+- Just terminal + essential controls
+- Expand panels on demand
+
+**Multi-Terminal Tabs**
+- Multiple terminal instances
+- Different directories/tasks in parallel
+- Tab-based switching
+
+### Revisit / Reconsider
+- Session memory AI summaries (may be redundant with CLAUDE.md discipline)
+- Prompt library (evaluate actual usage after daily use)
+- Project memory key-value store (may overlap with CLAUDE.md)
 
 ## Security
 
