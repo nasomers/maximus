@@ -4,7 +4,7 @@ mod db;
 mod git;
 mod pty;
 
-use commands::{analytics, claude_code, github, memory, projects, prompts, pty as pty_commands, quick_commands, sessions, snapshots, sync};
+use commands::{analytics, claude_code, github, hooks, memory, projects, prompts, pty as pty_commands, quick_commands, session_memory, sessions, snapshots, sync};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -84,6 +84,17 @@ pub fn run() {
             sync::connect_sync_repo,
             sync::sync_pull,
             sync::sync_push,
+            // Session memory commands
+            session_memory::save_session_memory,
+            session_memory::get_session_memories,
+            session_memory::get_latest_session_memory,
+            session_memory::delete_session_memory,
+            // Hooks commands
+            hooks::get_hooks_status,
+            hooks::install_hooks,
+            hooks::uninstall_hooks,
+            hooks::get_pending_sessions,
+            hooks::clear_pending_session,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

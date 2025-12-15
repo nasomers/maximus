@@ -133,16 +133,36 @@ Reads Claude Code's native stats from `~/.claude/`:
 Persistent memory that survives across Claude Code sessions:
 
 **How it works:**
-1. **Session End**: Claude Code hook asks Claude to summarize the session
-2. **Storage**: Summary saved to SQLite (locally) and sync repo (for portability)
-3. **Session Start**: Previous context injected via hook
-4. **UI**: "Welcome back" dashboard shows where you left off
+1. **Install Hooks**: Click "Enable Session Memory" in WelcomeBack card - installs hooks in `.claude/settings.json`
+2. **Session End**: `Stop` hook captures session data and saves to `~/.maximus/pending_sessions/`
+3. **Storage**: AI summaries saved to SQLite `session_memories` table
+4. **UI**: WelcomeBack dashboard shows AI summary with open threads
+
+**Hook Scripts** (installed to `~/.maximus/bin/`):
+- `maximus-session-end` - Captures session info on stop
+- `maximus-inject-context` - Injects context on prompt submit
 
 **What gets remembered:**
 - Session summaries (what you worked on)
 - Key decisions made
 - Open threads (unfinished work)
 - Files touched
+
+**Tauri Commands:**
+```rust
+// Session Memory
+save_session_memory(input) -> SessionMemory
+get_session_memories(project_id) -> Vec<SessionMemory>
+get_latest_session_memory(project_id) -> Option<SessionMemory>
+delete_session_memory(memory_id) -> ()
+
+// Hooks Management
+get_hooks_status(project_path) -> HooksStatus
+install_hooks(project_path) -> HooksStatus
+uninstall_hooks(project_path) -> ()
+get_pending_sessions() -> Vec<PendingSession>
+clear_pending_session(session_id) -> ()
+```
 
 **No extra API costs** - uses Claude Code hooks within your existing subscription.
 

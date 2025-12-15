@@ -79,10 +79,27 @@ pub fn init_db() -> Result<(), String> {
             FOREIGN KEY (project_id) REFERENCES projects(id)
         );
 
+        -- Session memories table (AI-generated summaries)
+        CREATE TABLE IF NOT EXISTS session_memories (
+            id TEXT PRIMARY KEY,
+            project_id TEXT NOT NULL,
+            claude_session_id TEXT,
+            session_date TEXT NOT NULL,
+            summary TEXT NOT NULL,
+            key_decisions TEXT,
+            open_threads TEXT,
+            files_touched TEXT,
+            duration_minutes INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (project_id) REFERENCES projects(id)
+        );
+
         -- Indexes
         CREATE INDEX IF NOT EXISTS idx_sessions_project ON sessions(project_id);
         CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
         CREATE INDEX IF NOT EXISTS idx_usage_date ON usage_stats(date);
+        CREATE INDEX IF NOT EXISTS idx_session_memories_project ON session_memories(project_id);
+        CREATE INDEX IF NOT EXISTS idx_session_memories_date ON session_memories(session_date);
         "#,
     )
     .map_err(|e| format!("Failed to create tables: {}", e))?;

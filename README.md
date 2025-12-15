@@ -89,10 +89,15 @@ Claude Code is powerful but working with it has friction:
 - **Model breakdown** - Usage by Opus, Sonnet, Haiku
 - **Cost tracking** - Know what you're spending
 
+### Session Memory (Claude Code Hooks)
+- **One-click setup** - Click "Enable Session Memory" in the WelcomeBack card
+- **Automatic capture** - Hooks capture session data when Claude Code stops
+- **AI summaries** - Generate rich summaries with key decisions and open threads
+- **Context injection** - Previous session context injected when starting new sessions
+
 ### Cloud Sync (In Progress)
 - **Cross-machine portability** - Work on multiple dev machines seamlessly
 - **Private sync repo** - Your prompts and memories sync to `maximus-sync` (private GitHub repo)
-- **Session memory** - AI-generated summaries of what you accomplished each session (via Claude Code hooks)
 - **Sensitive data scrubbing** - Secrets are stripped before syncing
 
 ## What Maximus Is Not
@@ -179,14 +184,15 @@ Build outputs:
 - Prompt library with tags and variables
 - Project memory system (manual key-value storage)
 - Visual diff viewer and snapshot comparison
-- "Welcome back" dashboard (reads existing Claude Code session data)
+- "Welcome back" dashboard with session context
+- Session memory hooks infrastructure (Claude Code integration)
 - Toast notifications for user feedback
 - Delete confirmation dialogs for Memory and Prompts
 - Real-time usage stats in header from Claude Code data
 
 **In Progress:**
-- Session memory via Claude Code hooks (AI-generated session summaries)
 - Cross-machine sync via private `maximus-sync` GitHub repo
+- AI-generated session summaries (hooks infrastructure complete, summary generation pending)
 
 ## Security
 
