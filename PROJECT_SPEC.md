@@ -8,6 +8,125 @@ Maximus is a desktop companion app for Claude Code that helps developers get mor
 
 ---
 
+## The Problem
+
+Claude Code is powerful but has friction points:
+
+1. **Fear of breaking things**: Claude can make sweeping changes. One bad prompt and your working code is mangled. You're constantly making manual git commits "just in case."
+
+2. **Context amnesia**: Every Claude Code session starts fresh. You re-explain your architecture, your conventions, your auth system—over and over.
+
+3. **Blind usage**: You don't know how much of your subscription you've used, which tasks burn tokens, or whether you're prompting efficiently.
+
+4. **Workflow friction**: Switching between terminal, editor, git, and GitHub interrupts your flow. Simple tasks like "commit and push" require multiple commands.
+
+**Maximus solves all of this** by wrapping Claude Code workflows in a desktop app that provides automatic safety nets, persistent memory, usage visibility, and streamlined git/GitHub operations.
+
+---
+
+## How It All Works Together
+
+### The Daily Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         MAXIMUS WORKFLOW                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  1. OPEN PROJECT                                                        │
+│     └─> Dashboard shows project status, recent sessions, usage stats    │
+│                                                                         │
+│  2. START CODING SESSION                                                │
+│     └─> Auto-snapshot created (safety net)                              │
+│     └─> Project memory loaded (context ready)                           │
+│     └─> Terminal ready with quick commands                              │
+│                                                                         │
+│  3. WORK WITH CLAUDE CODE                                               │
+│     └─> Use integrated terminal                                         │
+│     └─> Quick commands for common tasks                                 │
+│     └─> Git panel shows live status                                     │
+│                                                                         │
+│  4. SOMETHING GOES WRONG?                                               │
+│     └─> One-click restore from snapshot                                 │
+│     └─> Time-travel to see what changed                                 │
+│     └─> Restore individual files if needed                              │
+│                                                                         │
+│  5. READY TO COMMIT                                                     │
+│     └─> Security check blocks sensitive files                           │
+│     └─> One-click commit + push                                         │
+│     └─> Create PR without leaving app                                   │
+│                                                                         │
+│  6. END OF DAY                                                          │
+│     └─> Analytics show usage patterns                                   │
+│     └─> Session logged for continuity                                   │
+│     └─> Memory persists for next time                                   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Feature Integration Map
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│   PILLAR 1: NEVER LOSE WORK                                             │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │  Snapshots ──────> Time Travel ──────> One-Click Restore        │   │
+│   │      │                  │                     │                 │   │
+│   │      v                  v                     v                 │   │
+│   │  Auto-backup        Visual Diff          File-level Undo        │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│   PILLAR 2: NEVER LOSE CONTEXT                                          │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │  Project Memory ────> Session Logs ────> Prompt Library         │   │
+│   │      │                    │                   │                 │   │
+│   │      v                    v                   v                 │   │
+│   │  Key facts persist    What you did      Reusable prompts        │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│   PILLAR 3: NEVER WASTE USAGE                                           │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │  Claude Code Stats ──> Usage Dashboard ──> Cost Tracking        │   │
+│   │      │                      │                   │               │   │
+│   │      v                      v                   v               │   │
+│   │  Token counts          Daily patterns      Model breakdown      │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│   QUALITY OF LIFE                                                       │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │  Terminal ──────> Quick Commands ──────> GitHub Integration     │   │
+│   │      │                  │                      │                │   │
+│   │      v                  v                      v                │   │
+│   │  Full PTY           npm scripts           Commit/Push/PR        │   │
+│   │                     + custom              with security         │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### A Typical Session
+
+**Scenario**: You're adding authentication to your API.
+
+1. **Open Maximus** → Select your project from the dashboard
+2. **Check status** → See you have 3 snapshots from yesterday, last session was "added user model"
+3. **Create snapshot** → Click "Save" → Named "before-auth-work" (your safety net)
+4. **Open Terminal tab** → Your shell is ready in the project directory
+5. **Run Claude Code** → `claude` in terminal → Start working on auth
+6. **Claude makes a mess** → Auth code is broken, files are scrambled
+7. **Restore** → Click "Undo" → Back to "before-auth-work" in 2 seconds
+8. **Try again** → Better prompt this time → Auth works!
+9. **Commit** → Type message in Git panel → Click "Commit & Push"
+10. **Security check** → Maximus blocks because `.env` would be committed
+11. **Fix** → Add `.env` to `.gitignore` → Commit succeeds
+12. **Create PR** → Fill in title/body → PR created on GitHub
+13. **Check usage** → Analytics tab shows you've used ~50k tokens today
+
+**Total time saved**: ~15 minutes of manual git commands, zero risk of losing work.
+
+---
+
 ## The Three Pillars
 
 Everything in Maximus rolls up into three core value propositions:
@@ -212,6 +331,276 @@ Learn from usage patterns over time.
 - **Task type analysis**: Track efficiency by type (bug fix, feature, refactor)
 - **Pattern detection**: Identify what leads to retries
 - **Personalized tips**: Surface relevant suggestions based on history
+
+---
+
+### Extended Feature: Integrated Terminal - IMPLEMENTED
+
+Full PTY terminal embedded in Maximus with developer-focused enhancements.
+
+#### Terminal Features
+- **Full PTY emulation**: Via portable-pty, supports interactive programs (vim, htop, etc.)
+- **Side panel**: Collapsible panel with quick commands, git status, file explorer
+- **Risky command warnings**: Alerts for destructive commands (rm -rf, git reset --hard)
+- **Quick commands**: One-click execution of npm scripts and custom commands
+
+#### Terminal Data Model
+```typescript
+interface QuickCommand {
+  id: string;
+  name: string;
+  command: string;
+  category: string;
+  description?: string;
+}
+
+interface PackageScript {
+  name: string;
+  command: string;
+}
+```
+
+---
+
+### Extended Feature: GitHub Integration - IMPLEMENTED
+
+GUI wrapper for `gh` CLI providing complete GitHub workflow without leaving Maximus.
+
+#### Capabilities
+- **Repository Status**: Branch, ahead/behind counts, staged/modified/untracked files
+- **Git Operations**: Stage all, commit, push, pull
+- **Repository Setup**: Initialize git, create GitHub repo (public/private)
+- **Configuration**: Set git user.name and user.email
+- **Pull Requests**: Create PRs with title and body
+- **Authentication**: Leverages existing `gh auth` status
+
+#### GitHub Data Models
+```typescript
+interface GitStatus {
+  branch: string;
+  ahead: number;
+  behind: number;
+  staged: string[];
+  modified: string[];
+  untracked: string[];
+  hasRemote: boolean;
+}
+
+interface GhAuthStatus {
+  installed: boolean;
+  authenticated: boolean;
+  username?: string;
+  scopes: string[];
+}
+
+interface GitRepoInfo {
+  isRepo: boolean;
+  hasRemote: boolean;
+  remoteUrl?: string;
+  branch: string;
+}
+
+interface CreateRepoResult {
+  success: boolean;
+  url?: string;
+  message: string;
+}
+```
+
+#### UI States (GitPanel)
+The GitPanel component handles 5 distinct states:
+1. **gh not installed**: Shows installation instructions
+2. **gh not authenticated**: Shows `gh auth login` command
+3. **No git repo**: Shows "Initialize Repository" wizard
+4. **No remote**: Shows "Create GitHub Repo" form
+5. **Full panel**: Shows status, commit form, sync buttons
+
+#### Security
+All git operations include mandatory sensitive file detection. Operations are blocked if sensitive files would be committed, with clear error messages.
+
+---
+
+### Extended Feature: Claude Code Analytics - IMPLEMENTED
+
+Native integration with Claude Code's statistics for usage tracking.
+
+#### Data Source
+Reads from `~/.claude/` directory:
+- `statsig/` - Usage statistics
+- `projects/` - Project-specific session data
+
+#### Analytics Data Model
+```typescript
+interface ClaudeCodeStats {
+  version: number;
+  lastComputedDate: string;
+  dailyActivity: ClaudeCodeDailyActivity[];
+  dailyModelTokens: ClaudeCodeDailyModelTokens[];
+  modelUsage: Record<string, ClaudeCodeModelUsage>;
+  totalSessions: number;
+  totalMessages: number;
+  longestSession: ClaudeCodeLongestSession | null;
+  firstSessionDate: string | null;
+  hourCounts: Record<string, number>;
+}
+
+interface ClaudeCodeModelUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadInputTokens: number;
+  cacheCreationInputTokens: number;
+  webSearchRequests: number;
+  costUsd: number;
+}
+```
+
+---
+
+### Extended Feature: Session Memory System - PLANNED
+
+Semantic memory that captures the *meaning* of work sessions, enabling true context continuity across sessions and machines.
+
+#### Problem
+The existing "Memory" feature is just a key-value store - useful but dumb. It doesn't automatically capture what you did, what decisions were made, or what's left unfinished.
+
+#### Solution: Claude Code Hooks
+Leverage Claude Code's hook system (no extra API cost):
+1. **Session Start Hook**: Pulls context from previous sessions
+2. **Session End Hook**: Claude Code summarizes the session automatically
+
+#### Data Model
+```typescript
+interface SessionMemory {
+  id: string;
+  projectId: string;
+  sessionDate: string;           // ISO date
+  summary: string;               // AI-generated summary of what was done
+  keyDecisions: string[];        // Important decisions made during session
+  openThreads: string[];         // Unfinished work / next steps
+  filesTouched: string[];        // Files that were modified
+  durationMinutes: number;
+}
+
+interface WelcomeContext {
+  projectId: string;
+  lastSession: {
+    date: string;
+    daysAgo: number;
+    summary: string;
+    openThreads: string[];
+  } | null;
+  recentMemories: SessionMemory[];  // Last 5 sessions
+  suggestedContinuation: string;    // AI-suggested next step
+}
+```
+
+#### Hook Integration
+```bash
+# ~/.claude/settings.json (managed by Maximus)
+{
+  "hooks": {
+    "session_start": ["maximus session-start"],
+    "session_end": ["maximus session-end --summarize"]
+  }
+}
+```
+
+#### UX: "Welcome Back" Dashboard
+When opening a project after time away:
+```
+┌─────────────────────────────────────────────────────────────┐
+│  WELCOME BACK                                               │
+│  Last worked on this project 3 days ago                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  LAST SESSION (Dec 11)                                      │
+│  "Implemented GitHub integration with security features.    │
+│   Added sensitive file detection and git wizard."          │
+│                                                             │
+│  OPEN THREADS                                               │
+│  • PR creation flow needs testing                           │
+│  • Consider adding branch management                        │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  SUGGESTED: "Continue with PR creation testing"             │
+│                                                             │
+│  [ Start Session ]  [ View Full History ]                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Extended Feature: Cloud Sync (Portability) - PLANNED
+
+Sync Maximus data across multiple development machines using a private GitHub repo.
+
+#### Problem
+Session memories, prompts, and settings are only stored locally. Developers who work on multiple machines lose context when switching.
+
+#### Solution: maximus-sync Repository
+A dedicated private GitHub repo that stores portable Maximus data.
+
+```
+maximus-sync/                  # Private repo (FORCED - cannot be public)
+├── settings.json              # App preferences
+├── prompts/                   # Prompt library
+│   ├── review.md
+│   └── refactor.md
+└── projects/                  # Per-project memories
+    └── {project-hash}/        # SHA256 of project path
+        ├── memories.json      # Session summaries
+        └── meta.json          # Project metadata
+```
+
+#### Local Storage Structure
+```
+~/.maximus/
+├── config.json                # Local config (sync repo URL, etc.)
+├── maximus.db                 # SQLite (local cache)
+├── sync/                      # Cloned maximus-sync repo
+│   └── ...                    # Contents synced from GitHub
+└── local/                     # Never synced (large/sensitive)
+    └── transcripts/           # Full session logs
+```
+
+#### Setup Flow (First-Run Wizard)
+1. User opens Maximus for first time on new machine
+2. Maximus checks for existing `maximus-sync` repo
+3. If found: Clone and restore settings/memories
+4. If not found: Create new private repo (FORCED PRIVATE - no option for public)
+5. Link complete, auto-sync enabled
+
+**Important**: The setup wizard does NOT offer a public/private choice. The repo is always created as private to prevent accidental exposure of session memories.
+
+#### Sync Operations
+```typescript
+interface SyncStatus {
+  enabled: boolean;
+  repoUrl: string | null;        // github.com/user/maximus-sync
+  lastSynced: string | null;     // ISO timestamp
+  status: 'synced' | 'syncing' | 'offline' | 'error';
+  error?: string;
+}
+
+// Operations
+sync_pull()     // Pull latest from remote
+sync_push()     // Push local changes
+sync_status()   // Get current sync state
+```
+
+#### Auto-Sync Behavior
+- **On startup**: Pull latest from sync repo
+- **On change**: Debounced push (30s after last change)
+- **Conflict resolution**: Last-write-wins (memories are append-mostly)
+- **Offline**: Queue changes, sync when online
+
+#### Sensitive Data Scrubbing
+Before syncing, scrub potential secrets from memory summaries:
+- API keys / tokens (pattern matching)
+- Environment variable values
+- File paths containing sensitive directories
+- Same patterns used for git staging protection
 
 ---
 
@@ -763,37 +1152,63 @@ max --headless               # Run without GUI
 
 ## Development Phases
 
-### Phase 1: Foundation (MVP)
+### Phase 1: Foundation (MVP) - COMPLETE
 **Goal**: Core loop working end-to-end
 
-- [ ] Tauri app shell with system tray
-- [ ] Project detection and selection
-- [ ] Dashboard with basic layout
-- [ ] Snapshot save/restore (git-based)
-- [ ] Snapshot security: exclusions, .maximusignore, sensitive file warnings
-- [ ] Basic session logging
-- [ ] SQLite database setup
-- [ ] Secure directory permissions (700 for ~/.maximus/, project/.maximus/)
-- [ ] CLI: `max`, `max save`, `max undo`
+- [x] Tauri app shell with system tray
+- [x] Project detection and selection
+- [x] Dashboard with basic layout
+- [x] Snapshot save/restore (git-based)
+- [x] Snapshot security: exclusions, sensitive file detection
+- [x] Basic session logging
+- [x] SQLite database setup
+- [x] Secure directory permissions (700 for ~/.maximus/, project/.maximus/)
+- [ ] CLI: `max`, `max save`, `max undo` (GUI-focused instead)
 
-### Phase 2: Context Intelligence
+### Phase 1.5: Extended Features - COMPLETE
+**Goal**: Quality-of-life additions
+
+- [x] Full PTY terminal integration
+- [x] Quick commands panel (npm scripts, custom commands)
+- [x] Risky command warnings
+- [x] GitHub integration (full `gh` CLI wrapper)
+- [x] Git operations: init, commit, push, pull, PR creation
+- [x] Security: Sensitive file detection before git operations
+- [x] Time-travel timeline for snapshots
+- [x] Visual diff viewer
+- [x] Claude Code analytics integration
+- [x] New project wizard with scaffolding
+
+### Phase 2: Context Intelligence - MOSTLY COMPLETE
 **Goal**: Smart context management
 
-- [ ] Project memory CRUD
-- [ ] Memory auto-injection
+- [x] Project memory CRUD
+- [ ] Memory auto-injection into sessions
 - [ ] Context map generation
 - [ ] Token estimation
-- [ ] Session launcher modal
+- [ ] Session launcher modal with pre-flight
 - [ ] Pre-flight checks
 - [ ] CLAUDE.md import/export
 
-### Phase 3: Efficiency Engine
+### Phase 2.5: Session Memory & Portability - PLANNED
+**Goal**: True context continuity across sessions and machines
+
+- [ ] Session Memory System (Claude Code hooks integration)
+- [ ] Session end hook to capture AI-generated summaries
+- [ ] Session start hook to inject previous context
+- [ ] "Welcome Back" dashboard component
+- [ ] Cloud Sync setup wizard (FORCED PRIVATE `maximus-sync` repo)
+- [ ] Auto-sync: pull on startup, push on changes (debounced)
+- [ ] Sensitive data scrubbing before sync
+- [ ] Cross-machine portability
+
+### Phase 3: Efficiency Engine - PARTIALLY COMPLETE
 **Goal**: Usage optimization
 
-- [ ] Prompt library CRUD
-- [ ] Usage tracking and dashboard
-- [ ] Analytics visualizations
-- [ ] Efficiency scoring
+- [x] Prompt library CRUD
+- [x] Usage tracking and dashboard
+- [x] Analytics visualizations (via Claude Code integration)
+- [ ] Efficiency scoring display
 - [ ] Task scope advisor
 - [ ] Prompt quality checker
 - [ ] Pattern learning (basic)
@@ -804,7 +1219,7 @@ max --headless               # Run without GUI
 - [ ] Settings screen
 - [ ] Onboarding flow
 - [ ] Keyboard shortcuts
-- [ ] Snapshot comparison view
+- [x] Snapshot comparison view
 - [ ] Export/import functionality
 - [ ] Error handling and edge cases
 - [ ] Performance optimization
@@ -1010,12 +1425,69 @@ const DEFAULT_SNAPSHOT_EXCLUSIONS: &[&str] = &[
 
 ---
 
-### Implementation Checklist (Phase 1)
+### GitHub Integration Security - IMPLEMENTED
 
-- [ ] Implement snapshot exclusion system respecting `.gitignore`
-- [ ] Add default exclusion patterns for common secrets
-- [ ] Support `.maximusignore` file
-- [ ] Create `~/.maximus/` with 700 permissions
-- [ ] Create `project/.maximus/` with 700 permissions
-- [ ] Add sensitive file detection and warning UI
-- [ ] Show first-run security notice
+The GitHub integration includes mandatory security checks that cannot be bypassed:
+
+#### Sensitive File Detection
+Before any `git add` or `create_github_repo` operation, the system scans for sensitive files:
+
+```rust
+const SENSITIVE_PATTERNS: &[&str] = &[
+    ".env",
+    ".env.local",
+    ".env.development",
+    ".env.production",
+    ".env.test",
+    "credentials.json",
+    "secrets.json",
+    "service-account.json",
+    "*.pem",
+    "*.key",
+    "*.p12",
+    "*.pfx",
+    "id_rsa",
+    "id_ed25519",
+    ".npmrc",
+    ".pypirc",
+];
+```
+
+Additionally, files containing `secret`, `password`, or `apikey` in their names are flagged.
+
+#### Behavior
+1. **git_stage_all()**: Blocks with error listing sensitive files
+2. **git_commit()**: Inherits protection from stage_all
+3. **create_github_repo()**: Checks before creating repo, blocks with warning
+4. All operations provide clear error messages instructing user to add files to `.gitignore`
+
+#### Example Error Message
+```
+SECURITY WARNING: Cannot stage - sensitive files detected:
+- .env
+- config/credentials.json
+
+Add them to .gitignore first.
+```
+
+---
+
+### Implementation Checklist (Phase 1) - COMPLETE
+
+- [x] Implement snapshot exclusion system respecting `.gitignore`
+- [x] Add default exclusion patterns for common secrets
+- [ ] Support `.maximusignore` file (planned)
+- [x] Create `~/.maximus/` with 700 permissions
+- [x] Create `project/.maximus/` with 700 permissions
+- [x] Add sensitive file detection for git operations
+- [ ] Show first-run security notice (planned)
+
+### Implementation Checklist (GitHub Security) - COMPLETE
+
+- [x] Sensitive file pattern matching
+- [x] Block git_stage_all on sensitive files
+- [x] Block create_github_repo on sensitive files
+- [x] Clear error messages with file list
+- [x] Instructions to add to .gitignore
+- [x] Check both tracked and untracked files
+- [x] Respect existing .gitignore patterns
