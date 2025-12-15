@@ -207,10 +207,12 @@ fn create_hook_scripts() -> Result<(), String> {
         .map_err(|e| format!("Failed to create bin directory: {}", e))?;
 
     // Create maximus-session-end script
+    // Note: This just captures metadata. Claude Code already generates summaries
+    // in ~/.claude/projects/ which we read via get_claude_code_sessions.
     let session_end_script = r#"#!/bin/bash
 # Maximus Session End Hook
-# This script is called when a Claude Code session ends
-# It generates an AI summary of the session
+# Captures session metadata when Claude Code sessions end
+# Note: Claude Code already generates summaries - we just record metadata here
 
 # Read hook input from stdin
 INPUT=$(cat)
@@ -220,36 +222,21 @@ SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty')
 TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty')
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 
-# Ensure directories exist
+# Save session metadata for Maximus to process
 MAXIMUS_DIR="$HOME/.maximus"
-SUMMARIES_DIR="$MAXIMUS_DIR/session_summaries"
-mkdir -p "$SUMMARIES_DIR"
+SESSIONS_DIR="$MAXIMUS_DIR/session_metadata"
+mkdir -p "$SESSIONS_DIR"
 
-# Generate summary if we have a transcript
-if [ -n "$TRANSCRIPT_PATH" ] && [ -f "$TRANSCRIPT_PATH" ]; then
-    # Extract the last ~100 lines of the transcript for context
-    TRANSCRIPT_TAIL=$(tail -100 "$TRANSCRIPT_PATH" 2>/dev/null || echo "")
-
-    if [ -n "$TRANSCRIPT_TAIL" ]; then
-        # Generate a summary using Claude Code (non-interactive)
-        SUMMARY=$(echo "Based on this Claude Code session transcript, provide a brief JSON summary. Include: summary (1-2 sentences of what was accomplished), keyDecisions (array of important decisions made), openThreads (array of unfinished work or next steps), filesTouched (array of files modified). Respond ONLY with valid JSON, no markdown.
-
-Transcript excerpt:
-$TRANSCRIPT_TAIL" | claude --print 2>/dev/null || echo "")
-
-        # If we got a summary, save it
-        if [ -n "$SUMMARY" ] && echo "$SUMMARY" | jq . >/dev/null 2>&1; then
-            # Save the summary with metadata
-            cat > "$SUMMARIES_DIR/$SESSION_ID.json" << EOF
+# Save metadata (not a full summary - Claude Code handles that)
+if [ -n "$SESSION_ID" ]; then
+    cat > "$SESSIONS_DIR/$SESSION_ID.json" << EOF
 {
     "session_id": "$SESSION_ID",
+    "transcript_path": "$TRANSCRIPT_PATH",
     "cwd": "$CWD",
-    "timestamp": "$(date -Iseconds)",
-    "summary_data": $SUMMARY
+    "ended_at": "$(date -Iseconds)"
 }
 EOF
-        fi
-    fi
 fi
 
 # Output JSON to continue (don't block)
@@ -308,11 +295,11 @@ fi
     Ok(())
 }
 
-/// Get generated session summaries that haven't been imported yet
+/// Get session metadata captured by hooks
 #[tauri::command]
 pub fn get_pending_sessions() -> Result<Vec<serde_json::Value>, String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let summaries_dir = home.join(".maximus").join("session_summaries");
+    let summaries_dir = home.join(".maximus").join("session_metadata");
 
     if !summaries_dir.exists() {
         return Ok(vec![]);
@@ -338,74 +325,57 @@ pub fn get_pending_sessions() -> Result<Vec<serde_json::Value>, String> {
     Ok(sessions)
 }
 
-/// Import a session summary into the database
+/// Link a Claude Code session to a Maximus project (using metadata from hooks)
 #[tauri::command]
 pub fn import_session_summary(session_id: String, project_id: String) -> Result<(), String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let summary_file = home.join(".maximus").join("session_summaries").join(format!("{}.json", session_id));
+    let metadata_file = home.join(".maximus").join("session_metadata").join(format!("{}.json", session_id));
 
-    if !summary_file.exists() {
-        return Err("Summary file not found".to_string());
+    if !metadata_file.exists() {
+        return Err("Session metadata not found".to_string());
     }
 
-    let content = fs::read_to_string(&summary_file)
-        .map_err(|e| format!("Failed to read summary: {}", e))?;
+    let content = fs::read_to_string(&metadata_file)
+        .map_err(|e| format!("Failed to read metadata: {}", e))?;
 
     let data: serde_json::Value = serde_json::from_str(&content)
-        .map_err(|e| format!("Failed to parse summary: {}", e))?;
+        .map_err(|e| format!("Failed to parse metadata: {}", e))?;
 
-    // Extract summary data
-    let summary_data = data.get("summary_data").ok_or("No summary_data in file")?;
-
-    let summary = summary_data.get("summary")
+    // Get the CWD from metadata to find the Claude Code session
+    let cwd = data.get("cwd")
         .and_then(|v| v.as_str())
-        .unwrap_or("No summary available")
+        .unwrap_or("")
         .to_string();
 
-    let key_decisions: Vec<String> = summary_data.get("keyDecisions")
-        .and_then(|v| v.as_array())
-        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
-        .unwrap_or_default();
-
-    let open_threads: Vec<String> = summary_data.get("openThreads")
-        .and_then(|v| v.as_array())
-        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
-        .unwrap_or_default();
-
-    let files_touched: Vec<String> = summary_data.get("filesTouched")
-        .and_then(|v| v.as_array())
-        .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
-        .unwrap_or_default();
-
-    // Save to database using session_memory command
+    // Create a simple memory entry linking the session
     let input = crate::commands::session_memory::CreateSessionMemoryInput {
         project_id,
         claude_session_id: Some(session_id.clone()),
-        summary,
-        key_decisions: Some(key_decisions),
-        open_threads: Some(open_threads),
-        files_touched: Some(files_touched),
+        summary: format!("Session in {}", cwd),
+        key_decisions: None,
+        open_threads: None,
+        files_touched: None,
         duration_minutes: None,
     };
 
     crate::commands::session_memory::save_session_memory(input)?;
 
-    // Remove the processed summary file
-    fs::remove_file(&summary_file)
-        .map_err(|e| format!("Failed to remove summary file: {}", e))?;
+    // Remove the processed metadata file
+    fs::remove_file(&metadata_file)
+        .map_err(|e| format!("Failed to remove metadata file: {}", e))?;
 
     Ok(())
 }
 
-/// Clear a pending session summary
+/// Clear session metadata
 #[tauri::command]
 pub fn clear_pending_session(session_id: String) -> Result<(), String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let session_file = home.join(".maximus").join("session_summaries").join(format!("{}.json", session_id));
+    let session_file = home.join(".maximus").join("session_metadata").join(format!("{}.json", session_id));
 
     if session_file.exists() {
         fs::remove_file(&session_file)
-            .map_err(|e| format!("Failed to remove session summary: {}", e))?;
+            .map_err(|e| format!("Failed to remove session metadata: {}", e))?;
     }
 
     Ok(())
