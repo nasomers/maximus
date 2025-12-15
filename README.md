@@ -89,11 +89,10 @@ Claude Code is powerful but working with it has friction:
 - **Model breakdown** - Usage by Opus, Sonnet, Haiku
 - **Cost tracking** - Know what you're spending
 
-### Cloud Sync (Coming Soon)
+### Cloud Sync (In Progress)
 - **Cross-machine portability** - Work on multiple dev machines seamlessly
 - **Private sync repo** - Your prompts and memories sync to `maximus-sync` (private GitHub repo)
-- **Session memory** - AI-generated summaries of what you accomplished each session
-- **"Welcome back" context** - See what you were working on when returning to a project
+- **Session memory** - AI-generated summaries of what you accomplished each session (via Claude Code hooks)
 - **Sensitive data scrubbing** - Secrets are stripped before syncing
 
 ## What Maximus Is Not
@@ -178,9 +177,9 @@ Build outputs:
 - GitHub integration (commit, push, pull, PR)
 - Claude Code analytics integration
 - Prompt library with tags and variables
-- Project memory system
+- Project memory system (manual key-value storage)
 - Visual diff viewer and snapshot comparison
-- "Welcome back" dashboard with context from last Claude Code session
+- "Welcome back" dashboard (reads existing Claude Code session data)
 - Toast notifications for user feedback
 - Delete confirmation dialogs for Memory and Prompts
 - Real-time usage stats in header from Claude Code data
@@ -188,7 +187,6 @@ Build outputs:
 **In Progress:**
 - Session memory via Claude Code hooks (AI-generated session summaries)
 - Cross-machine sync via private `maximus-sync` GitHub repo
-- Sensitive data scrubbing for synced content
 
 ## Security
 
