@@ -43,11 +43,27 @@ impl PtyManager {
             })
             .map_err(|e| format!("Failed to open PTY: {}", e))?;
 
-        // Determine shell
-        let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/bash".to_string());
+        // Determine shell based on platform
+        #[cfg(windows)]
+        let (shell, shell_args): (String, Vec<&str>) = {
+            // On Windows, prefer PowerShell, fall back to cmd
+            let ps = std::env::var("COMSPEC")
+                .unwrap_or_else(|_| "cmd.exe".to_string());
+            (ps, vec![])
+        };
+
+        #[cfg(not(windows))]
+        let (shell, shell_args): (String, Vec<&str>) = {
+            // On Unix, use $SHELL or fall back to bash
+            let sh = std::env::var("SHELL")
+                .unwrap_or_else(|_| "/bin/bash".to_string());
+            (sh, vec!["-l"]) // -l for login shell
+        };
 
         let mut cmd = CommandBuilder::new(&shell);
-        cmd.arg("-l"); // Login shell
+        for arg in shell_args {
+            cmd.arg(arg);
+        }
 
         // Set working directory if provided
         if let Some(dir) = cwd {

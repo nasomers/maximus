@@ -17,6 +17,8 @@ jobs:
         include:
           - platform: ubuntu-latest
             target: linux
+          - platform: macos-latest
+            target: macos
           - platform: windows-latest
             target: windows
 
@@ -64,6 +66,17 @@ jobs:
             src-tauri/target/release/bundle/appimage/*.AppImage
           if-no-files-found: error
 
+      # Upload macOS artifacts
+      - name: Upload macOS artifacts
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: maximus-macos
+          path: |
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
+          if-no-files-found: warn
+
       # Upload Windows artifacts
       - name: Upload Windows artifacts
         if: matrix.platform == 'windows-latest'
@@ -100,4 +113,5 @@ jobs:
           generate_release_notes: true
           files: |
             artifacts/maximus-linux/*
+            artifacts/maximus-macos/*
             artifacts/maximus-windows/*

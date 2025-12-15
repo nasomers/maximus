@@ -113,22 +113,61 @@ Claude Code is powerful but working with it has friction:
 | Database | SQLite |
 | Terminal | portable-pty |
 
+## Platform Support
+
+| Platform | Status | Downloads |
+|----------|--------|-----------|
+| **Linux** | Supported | `.deb`, `.AppImage` |
+| **macOS** | Supported | `.dmg`, `.app` |
+| **Windows** | Supported | `.msi`, `.exe` |
+
+### Platform Notes
+
+**Linux**
+- Full support, tested on Ubuntu 22.04+
+- Requires webkit2gtk for the webview
+
+**macOS**
+- Full support on macOS 11+
+- App is unsigned - on first launch, right-click → Open to bypass Gatekeeper
+- Or run: `xattr -cr /Applications/Maximus.app`
+
+**Windows**
+- Full support on Windows 10/11
+- Terminal uses cmd.exe by default (PowerShell support planned)
+
 ## Installation
 
-### Prerequisites
-- Node.js 18+
-- Rust (via rustup)
-- GitHub CLI (`gh`) for GitHub features
+### Download Release (Recommended)
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/nasomers/maximus/releases).
 
 ### Build from Source
 
+#### Prerequisites
+- Node.js 18+
+- Rust (via [rustup](https://rustup.rs))
+- GitHub CLI (`gh`) for GitHub features
+
+#### Linux Dependencies
+```bash
+# Ubuntu/Debian
+sudo apt-get install libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+```
+
+#### Build
 ```bash
 git clone https://github.com/nasomers/maximus.git
 cd maximus
 npm install
 npm run tauri dev     # Development
-npm run tauri build   # Production
+npm run tauri build   # Production build
 ```
+
+Build outputs:
+- Linux: `src-tauri/target/release/bundle/deb/` and `appimage/`
+- macOS: `src-tauri/target/release/bundle/dmg/` and `macos/`
+- Windows: `src-tauri/target/release/bundle/msi/` and `nsis/`
 
 ## Roadmap
 
