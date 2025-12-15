@@ -134,7 +134,7 @@ Claude Code is powerful but working with it has friction:
 
 **Windows**
 - Full support on Windows 10/11
-- Terminal uses cmd.exe by default (PowerShell support planned)
+- Terminal auto-detects: PowerShell 7 (pwsh) → Windows PowerShell → cmd.exe
 
 ## Installation
 

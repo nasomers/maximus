@@ -5,6 +5,16 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use tauri::{AppHandle, Emitter};
 
+/// Check if an executable exists in PATH (Windows only)
+#[cfg(windows)]
+fn which_exists(cmd: &str) -> bool {
+    std::process::Command::new("where")
+        .arg(cmd)
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+}
+
 /// Manages PTY instances
 pub struct PtyManager {
     ptys: HashMap<String, PtyInstance>,
@@ -46,10 +56,14 @@ impl PtyManager {
         // Determine shell based on platform
         #[cfg(windows)]
         let (shell, shell_args): (String, Vec<&str>) = {
-            // On Windows, prefer PowerShell, fall back to cmd
-            let ps = std::env::var("COMSPEC")
-                .unwrap_or_else(|_| "cmd.exe".to_string());
-            (ps, vec![])
+            // On Windows, prefer PowerShell 7 (pwsh) > Windows PowerShell > cmd
+            if which_exists("pwsh") {
+                ("pwsh".to_string(), vec!["-NoLogo"])
+            } else if which_exists("powershell") {
+                ("powershell".to_string(), vec!["-NoLogo"])
+            } else {
+                (std::env::var("COMSPEC").unwrap_or_else(|_| "cmd.exe".to_string()), vec![])
+            }
         };
 
         #[cfg(not(windows))]
