@@ -1,22 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AppShell } from "@/components/layout/AppShell";
-import { TabBar } from "@/components/layout/TabBar";
-import { Dashboard } from "@/pages/Dashboard";
-import { Snapshots } from "@/pages/Snapshots";
-import { TerminalPage } from "@/pages/TerminalPage";
-import { Memory } from "@/pages/Memory";
-import { Prompts } from "@/pages/Prompts";
-import { Analytics } from "@/pages/Analytics";
+import { Header } from "@/components/layout/Header";
+import { TerminalContainer } from "@/components/terminal/TerminalContainer";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { BottomBar } from "@/components/bottom-bar/BottomBar";
 import { SetupWizard } from "@/components/setup/SetupWizard";
 import { Toaster } from "@/components/ui/sonner";
-import { useAppStore } from "@/stores/appStore";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useTerminalStore } from "@/stores/terminalStore";
 
 const queryClient = new QueryClient();
 
-function App() {
-  const { activeTab, setActiveTab } = useAppStore();
+function AppContent() {
   const { setupComplete } = useSettingsStore();
   const [showSetup, setShowSetup] = useState(false);
 
@@ -27,35 +22,40 @@ function App() {
     }
   }, [setupComplete]);
 
-  const renderPage = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <Dashboard />;
-      case "terminal":
-        return (
-          <div className="h-full -m-4">
-            <TerminalPage />
-          </div>
-        );
-      case "snapshots":
-        return <Snapshots />;
-      case "memory":
-        return <Memory />;
-      case "prompts":
-        return <Prompts />;
-      case "analytics":
-        return <Analytics />;
-      default:
-        return <Dashboard />;
-    }
-  };
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+B: Toggle sidebar
+      if (e.ctrlKey && e.key === "b") {
+        e.preventDefault();
+        useTerminalStore.getState().toggleSidebar();
+      }
+
+      // Ctrl+T: New tab (handled in TerminalTabs)
+      // Ctrl+W: Close tab (handled in TerminalTabs)
+      // Ctrl+\: Toggle split (handled in TerminalTabs)
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="flex flex-col h-screen bg-background text-foreground">
-        <AppShell>{renderPage()}</AppShell>
-        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="flex flex-col h-screen bg-[#0a0a0b] text-white overflow-hidden">
+      {/* Header */}
+      <Header />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Terminal Area */}
+        <TerminalContainer />
+
+        {/* Sidebar */}
+        <Sidebar />
       </div>
+
+      {/* Bottom Bar */}
+      <BottomBar />
 
       {/* First-time setup wizard */}
       <SetupWizard
@@ -64,7 +64,24 @@ function App() {
       />
 
       {/* Toast notifications */}
-      <Toaster />
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: "#18181b",
+            border: "1px solid #27272a",
+            color: "#fafafa",
+          },
+        }}
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppContent />
     </QueryClientProvider>
   );
 }
