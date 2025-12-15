@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Settings, Zap, FolderPlus, Check, Folder, Loader2, Trash2 } from "lucide-react";
+import { ChevronDown, Settings, Zap, FolderPlus, Check, Folder, Loader2, Trash2, Github, Cloud, CloudOff } from "lucide-react";
 import { MaximusLogo } from "@/components/ui/MaximusLogo";
 import { useProjectStore } from "@/stores/projectStore";
 import { cn } from "@/lib/utils";
@@ -15,11 +15,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { SettingsModal } from "@/components/settings/SettingsModal";
+import { useSettingsStore } from "@/stores/settingsStore";
+import { useGhAuthStatus } from "@/hooks/useGitHub";
 
 export function Header() {
   const { currentProject, setCurrentProject } = useProjectStore();
   const { data: projects = [] } = useProjects();
+  const { data: ghAuth } = useGhAuthStatus();
+  const { sync } = useSettingsStore();
   const queryClient = useQueryClient();
   const [isInitializing, setIsInitializing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -178,6 +188,67 @@ export function Header() {
               <span className="text-xs font-medium text-muted-foreground w-8">{usage}%</span>
             </div>
           </div>
+
+          {/* Divider */}
+          <div className="h-6 w-px bg-border" />
+
+          {/* GitHub & Sync Status */}
+          <TooltipProvider>
+            <div className="flex items-center gap-2">
+              {/* GitHub Status */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors",
+                      ghAuth?.authenticated
+                        ? "text-green-500 hover:bg-green-500/10"
+                        : "text-yellow-500 hover:bg-yellow-500/10"
+                    )}
+                  >
+                    <Github className="w-4 h-4" />
+                    {ghAuth?.authenticated && (
+                      <span className="text-xs font-medium hidden sm:inline">
+                        {ghAuth.username}
+                      </span>
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {ghAuth?.authenticated
+                    ? `GitHub: ${ghAuth.username}`
+                    : "GitHub: Not authenticated"}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Sync Status */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors",
+                      sync.enabled && sync.repoUrl
+                        ? "text-green-500 hover:bg-green-500/10"
+                        : "text-muted-foreground hover:bg-secondary/50"
+                    )}
+                  >
+                    {sync.enabled && sync.repoUrl ? (
+                      <Cloud className="w-4 h-4" />
+                    ) : (
+                      <CloudOff className="w-4 h-4" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {sync.enabled && sync.repoUrl
+                    ? `Synced: ${sync.repoUrl}`
+                    : "Cloud sync not configured"}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
 
           {/* Settings */}
           <button
