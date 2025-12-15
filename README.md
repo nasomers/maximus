@@ -1,69 +1,117 @@
 # Maximus
 
-A desktop companion for Claude Code that eliminates the friction of AI-assisted coding.
+A single desktop app for the entire Claude Code workflow - from project creation to deployment.
 
-## The Problem
+## What Is Maximus?
 
-Working with Claude Code is powerful, but painful:
+Maximus is a desktop application that wraps your terminal-based Claude Code workflow with project management, safety nets, and quality-of-life tools.
 
-| Problem | What Happens |
-|---------|--------------|
-| **Claude breaks things** | You spend 20 minutes undoing changes manually |
-| **Context amnesia** | Every session starts from scratch - "What were we doing?" |
-| **Blind usage** | No idea how much quota you've used until you hit the wall |
-| **Git friction** | Constantly switching to terminal for commits |
+Instead of juggling multiple windows, CLI commands, and manual backups, you work inside Maximus:
 
-## The Solution
+1. **Create a project** - Scaffold from templates or initialize existing code
+2. **Plan your work** - Document architecture, store project memory, save reusable prompts
+3. **Code with confidence** - Full terminal with one-click snapshots before risky changes
+4. **Recover from mistakes** - Restore any snapshot instantly when Claude breaks something
+5. **Ship it** - Commit, push, and create PRs without leaving the app
+6. **Learn and improve** - Track usage, review session history, refine your workflow
 
-Maximus wraps Claude Code with safety nets and quality-of-life features:
+## The Workflow
 
 ```
-Open Project → Create Snapshot → Work in Terminal → Restore if Broken → Commit & Push
+┌─────────────────────────────────────────────────────────────────┐
+│                         MAXIMUS                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   CREATE          PLAN            CODE            SHIP          │
+│   ──────          ────            ────            ────          │
+│   New project     Project memory  Terminal        Git status    │
+│   Templates       Prompt library  Snapshots       Commit/Push   │
+│   Scaffolding     Architecture    Quick cmds      Pull requests │
+│                   notes           File explorer                 │
+│                                                                 │
+│   ◄──────────────── All in one window ──────────────────►       │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Features
+## Why Maximus Exists
 
-### Never Lose Work
-- **One-click snapshots** - Save your project state before risky changes
+Claude Code is powerful but working with it has friction:
+
+| Friction | How Maximus Helps |
+|----------|-------------------|
+| Claude sometimes breaks working code | Take snapshots before changes, restore in one click |
+| Starting fresh every session | Project memory persists context across sessions |
+| Rewriting the same prompts | Prompt library with tags and variables |
+| Switching between terminal, git GUI, file browser | Everything in one app |
+| No visibility into usage | Built-in analytics from Claude Code stats |
+| Accidentally committing secrets | Sensitive file detection blocks dangerous commits |
+| Repetitive git commands | GUI buttons for commit, push, pull, PR |
+| Settings lost on new machine | Sync prompts and memories to your private GitHub repo |
+
+## Core Features
+
+### Project Management
+- **New project wizard** - Create projects from templates (React, Tauri, etc.)
+- **Project memory** - Store facts about your codebase that persist across sessions
+- **Recent projects** - Quick access to your work
+
+### Prompt Library
+- **Save reusable prompts** - Store prompts you use repeatedly
+- **Tag organization** - Categorize prompts by purpose (refactor, review, debug, etc.)
+- **Variable support** - Use `{{placeholders}}` for dynamic prompts
+- **Usage tracking** - See which prompts you use most
+
+### Terminal & Development
+- **Full PTY terminal** - Real shell experience, not a limited emulator
+- **Quick commands panel** - One-click npm scripts and custom commands
+- **File explorer** - Browse and open files without leaving the app
+- **Risky command warnings** - Alerts before destructive operations
+
+### Snapshots (Safety Net)
+- **One-click save** - Snapshot your entire project state
 - **Instant restore** - Undo Claude's mistakes in seconds
 - **Time-travel timeline** - Visual history of all snapshots
-- **File-level restore** - Cherry-pick specific files from any snapshot
-- **Visual diff viewer** - See exactly what changed
+- **Visual diff viewer** - See exactly what changed between snapshots
+- **File-level restore** - Cherry-pick specific files from any point
+- **Snapshot comparison** - Compare any two snapshots side-by-side
 
-### Never Lose Context
-- **Project memory** - Persistent facts about your codebase
-- **Session history** - Track what was done and when
-- **Claude Code integration** - Native stats and session data
-- **Coming soon**: Semantic session memory with AI-generated summaries
+### GitHub Integration
+- **Git status** - See branch, changes, ahead/behind at a glance
+- **Commit & push** - Stage, commit, and push with buttons
+- **Pull requests** - Create PRs directly from the app
+- **Repository setup** - Initialize git and create GitHub repos
+- **Sensitive file detection** - Blocks `.env`, keys, credentials from commits
 
-### Never Waste Usage
-- **Usage tracking** - See token consumption by model
-- **Cost tracking** - Know exactly what you're spending
-- **Activity patterns** - Understand your coding habits
-- **Session analytics** - Efficiency scores and insights
+### Analytics
+- **Claude Code stats** - Token usage, costs, session history
+- **Activity patterns** - When and how you use Claude
+- **Model breakdown** - Usage by Opus, Sonnet, Haiku
+- **Cost tracking** - Know what you're spending
 
-### Quality of Life
-- **Integrated terminal** - Full PTY with quick commands panel
-- **GitHub GUI** - Commit, push, pull, create PRs without leaving the app
-- **New project wizard** - Scaffold projects from templates
-- **Risky command warnings** - Protection from destructive operations
-- **Sensitive file detection** - Never accidentally commit secrets
+### Cloud Sync (Coming Soon)
+- **Cross-machine portability** - Work on multiple dev machines seamlessly
+- **Private sync repo** - Your prompts and memories sync to `maximus-sync` (private GitHub repo)
+- **Session memory** - AI-generated summaries of what you accomplished each session
+- **"Welcome back" context** - See what you were working on when returning to a project
+- **Sensitive data scrubbing** - Secrets are stripped before syncing
 
-## Screenshots
+## What Maximus Is Not
 
-*Coming soon*
+- **Not a Claude Code replacement** - You still use Claude Code in the terminal, Maximus wraps it
+- **Not an IDE** - It's a companion app, not a code editor
+- **Not cloud-dependent** - All data stays local (optional sync to your own private repo)
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Desktop Shell | Tauri 2.0 (Rust) |
-| Frontend | React 18 + TypeScript |
-| Styling | TailwindCSS + shadcn/ui |
-| State | Zustand + TanStack Query |
-| Database | SQLite (rusqlite) |
+| Desktop | Tauri 2.0 (Rust) |
+| Frontend | React 18, TypeScript, TailwindCSS |
+| Components | shadcn/ui |
+| State | Zustand, TanStack Query |
+| Database | SQLite |
 | Terminal | portable-pty |
-| Git | git CLI + gh CLI |
 
 ## Installation
 
@@ -75,106 +123,39 @@ Open Project → Create Snapshot → Work in Terminal → Restore if Broken → 
 ### Build from Source
 
 ```bash
-# Clone the repo
-git clone https://github.com/yourusername/maximus.git
+git clone https://github.com/nasomers/maximus.git
 cd maximus
-
-# Install dependencies
 npm install
-
-# Run in development
-npm run tauri dev
-
-# Build for production
-npm run tauri build
-```
-
-## Project Structure
-
-```
-src/                    # React frontend
-├── components/
-│   ├── ui/             # shadcn components
-│   ├── layout/         # App shell, tabs, header
-│   ├── dashboard/      # Home screen components
-│   ├── terminal/       # Terminal + git panel
-│   └── snapshots/      # Snapshot management
-├── hooks/              # React Query hooks
-├── stores/             # Zustand stores
-└── pages/              # Main page components
-
-src-tauri/              # Rust backend
-├── src/
-│   ├── commands/       # Tauri IPC handlers
-│   ├── db/             # SQLite operations
-│   ├── git/            # Git operations
-│   ├── pty/            # Terminal PTY
-│   └── tray/           # System tray
+npm run tauri dev     # Development
+npm run tauri build   # Production
 ```
 
 ## Roadmap
 
-### Phase 1: Foundation - Complete
-- Tauri app shell with system tray
-- Project detection and selection
-- Git-based snapshots with restore
-- SQLite database
-- Dashboard with quick actions
-
-### Phase 1.5: Extended Features - Complete
-- Full PTY terminal integration
+**Complete:**
+- Project creation and management
+- Snapshot system with time-travel and restore
+- Full terminal integration with quick commands
 - GitHub integration (commit, push, pull, PR)
 - Claude Code analytics integration
-- Time-travel timeline
-- Visual diff viewer
-- New project wizard
+- Prompt library with tags and variables
+- Project memory system
+- Visual diff viewer and snapshot comparison
 
-### Phase 2.5: Session Memory & Portability - Planned
-- Session memory via Claude Code hooks
-- "Welcome Back" dashboard with context
-- Cloud sync via private GitHub repo
-- Cross-machine portability
-
-### Phase 3: Efficiency Engine - In Progress
-- Prompt library
-- Usage optimization suggestions
-- Task scope advisor
-
-## Development
-
-```bash
-# Start dev server
-npm run tauri dev
-
-# Type check
-npm run typecheck
-
-# Lint
-npm run lint
-
-# Build production
-npm run tauri build
-```
+**In Progress:**
+- Session memory via Claude Code hooks (AI-generated session summaries)
+- Cross-machine sync via private `maximus-sync` GitHub repo
+- "Welcome back" dashboard with context from last session
+- Sensitive data scrubbing for synced content
 
 ## Security
 
-Maximus takes security seriously:
-
-- **Sensitive file detection** - Blocks committing `.env`, keys, credentials
-- **Secure storage** - `~/.maximus/` directory uses 700 permissions
-- **No telemetry** - All data stays local (sync is opt-in to your own repo)
-- **Open source** - Audit the code yourself
-
-## Contributing
-
-Contributions welcome! Please read the project spec in `PROJECT_SPEC.md` before submitting PRs.
+- Sensitive file detection prevents committing secrets
+- Local-first: all data in `~/.maximus/` with 700 permissions
+- Sync repo is forced private (no option to make it public)
+- No telemetry or analytics sent anywhere
+- Open source - audit it yourself
 
 ## License
 
 MIT
-
-## Acknowledgments
-
-- Built with [Tauri](https://tauri.app/)
-- UI components from [shadcn/ui](https://ui.shadcn.com/)
-- Inspired by the need to stop losing work to Claude Code mistakes
