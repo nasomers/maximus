@@ -187,3 +187,27 @@ export function useClearPendingSession() {
     },
   });
 }
+
+export function useImportSessionSummary() {
+  const queryClient = useQueryClient();
+  const { currentProject } = useProjectStore();
+
+  return useMutation({
+    mutationFn: async (sessionId: string) => {
+      if (!currentProject?.id) throw new Error("No project selected");
+      return invoke("import_session_summary", {
+        sessionId,
+        projectId: currentProject.id,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingSessions"] });
+      queryClient.invalidateQueries({
+        queryKey: ["sessionMemories", currentProject?.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["latestSessionMemory", currentProject?.id],
+      });
+    },
+  });
+}

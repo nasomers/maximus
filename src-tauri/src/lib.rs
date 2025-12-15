@@ -94,6 +94,7 @@ pub fn run() {
             hooks::install_hooks,
             hooks::uninstall_hooks,
             hooks::get_pending_sessions,
+            hooks::import_session_summary,
             hooks::clear_pending_session,
         ])
         .run(tauri::generate_context!())
