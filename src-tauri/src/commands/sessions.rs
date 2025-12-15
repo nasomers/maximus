@@ -27,7 +27,7 @@ pub fn create_session(project_id: String, task: String) -> Result<Session, Strin
 
     let id = uuid::Uuid::new_v4().to_string();
     let started_at = chrono::Utc::now().to_rfc3339();
-    let log_path = format!(".maximus/sessions/{}.md", id);
+    let log_path = format!(".lumen/sessions/{}.md", id);
 
     // Insert into database
     conn.execute(

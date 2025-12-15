@@ -31,6 +31,12 @@ pub fn run() {
             projects::delete_project,
             projects::scaffold_project,
             projects::list_directory,
+            projects::read_claude_md,
+            projects::write_claude_md,
+            projects::get_failed_approaches,
+            projects::add_failed_approach,
+            projects::remove_failed_approach,
+            projects::clear_failed_approaches,
             // Session commands
             sessions::create_session,
             sessions::end_session,
@@ -96,6 +102,8 @@ pub fn run() {
             hooks::get_pending_sessions,
             hooks::import_session_summary,
             hooks::clear_pending_session,
+            hooks::set_prompt_prefix,
+            hooks::get_prompt_prefix,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

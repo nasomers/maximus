@@ -1,4 +1,6 @@
-# Maximus
+# Lumen
+
+**Illuminate your Claude sessions.**
 
 A terminal-first desktop companion for Claude Code. Beautiful, fast, and focused on one thing: making your Claude Code sessions as efficient as possible.
 
@@ -86,7 +88,7 @@ A terminal-first desktop companion for Claude Code. Beautiful, fast, and focused
 
 **Themes included:** Dracula, Nord, Tokyo Night, Monokai, or our signature look.
 
-## What Maximus Is NOT
+## What Lumen Is NOT
 
 - **Not a Claude Code replacement** - It wraps your terminal, Claude runs inside
 - **Not an IDE** - It's a terminal companion, not a code editor
@@ -106,7 +108,7 @@ A terminal-first desktop companion for Claude Code. Beautiful, fast, and focused
 ## Installation
 
 ### Download
-Grab the latest release for your platform from [Releases](https://github.com/nasomers/maximus/releases).
+Grab the latest release for your platform from [Releases](https://github.com/nasomers/lumen/releases).
 
 | Platform | Format |
 |----------|--------|
@@ -123,8 +125,8 @@ Grab the latest release for your platform from [Releases](https://github.com/nas
 sudo apt-get install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
 
 # Build
-git clone https://github.com/nasomers/maximus.git
-cd maximus
+git clone https://github.com/nasomers/lumen.git
+cd lumen
 npm install
 npm run tauri dev     # Development
 npm run tauri build   # Production

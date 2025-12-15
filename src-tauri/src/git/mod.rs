@@ -28,8 +28,8 @@ pub const DEFAULT_EXCLUSIONS: &[&str] = &[
     // IDE configs that may have tokens
     ".idea/**/workspace.xml",
     ".vscode/*.log",
-    // Maximus internal
-    ".maximus/",
+    // Lumen internal
+    ".lumen/",
     // Common ignores
     "node_modules/",
     "target/",
@@ -105,7 +105,7 @@ fn glob_match(pattern: &str, path: &str) -> bool {
 
 /// Get the snapshot repository path for a project
 pub fn get_snapshot_repo_path(project_path: &Path) -> PathBuf {
-    project_path.join(".maximus").join("snapshots")
+    project_path.join(".lumen").join("snapshots")
 }
 
 /// Initialize or open the shadow git repository for snapshots
@@ -124,7 +124,7 @@ pub fn init_or_open_repo(project_path: &Path) -> Result<Repository, String> {
             .map_err(|e| format!("Failed to initialize repository: {}", e))?;
 
         // Create initial empty commit
-        let sig = Signature::now("Maximus", "maximus@local")
+        let sig = Signature::now("Lumen", "lumen@local")
             .map_err(|e| format!("Failed to create signature: {}", e))?;
 
         {
@@ -223,7 +223,7 @@ pub fn create_snapshot(
         None => name.to_string(),
     };
 
-    let sig = Signature::now("Maximus", "maximus@local")
+    let sig = Signature::now("Lumen", "lumen@local")
         .map_err(|e| format!("Failed to create signature: {}", e))?;
 
     // Get parent commit

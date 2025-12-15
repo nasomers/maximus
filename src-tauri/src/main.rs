@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use maximus_lib::cli;
+use lumen_lib::cli;
 
 fn main() {
     // Parse CLI arguments
@@ -15,7 +15,7 @@ fn main() {
         }
         Ok(false) => {
             // Open GUI
-            maximus_lib::run()
+            lumen_lib::run()
         }
         Err(e) => {
             eprintln!("Error: {}", e);

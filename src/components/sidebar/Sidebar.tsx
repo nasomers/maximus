@@ -18,7 +18,8 @@ export function Sidebar() {
             "absolute right-2 top-1/2 -translate-y-1/2 z-20",
             "p-1.5 rounded-lg bg-[#1f1f23] border border-[#27272a]",
             "text-[#71717a] hover:text-white hover:bg-[#27272a]",
-            "transition-all duration-200"
+            "transition-all duration-200 hover-glow",
+            "animate-fade-in"
           )}
           title="Show sidebar (Ctrl+B)"
         >
@@ -29,9 +30,11 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          "h-full bg-[#111113] border-l border-[#27272a] flex flex-col",
-          "transition-all duration-200 ease-out",
-          sidebarVisible ? "opacity-100" : "opacity-0 pointer-events-none w-0"
+          "h-full bg-[#111113] border-l border-[#27272a] flex flex-col overflow-hidden",
+          "transition-all duration-300 ease-out",
+          sidebarVisible
+            ? "opacity-100 translate-x-0"
+            : "opacity-0 pointer-events-none translate-x-4 w-0"
         )}
         style={{ width: sidebarVisible ? sidebarWidth : 0 }}
       >
@@ -53,10 +56,16 @@ export function Sidebar() {
         </div>
 
         {/* Widgets */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-2">
-          <GitWidget />
-          <SnapshotsWidget />
-          <QuickCommandsWidget />
+        <div className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-2">
+          <div className="animate-fade-in" style={{ animationDelay: '0ms' }}>
+            <GitWidget />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '50ms' }}>
+            <SnapshotsWidget />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <QuickCommandsWidget />
+          </div>
         </div>
       </div>
     </>

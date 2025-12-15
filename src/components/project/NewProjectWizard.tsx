@@ -425,7 +425,7 @@ export function NewProjectWizard({ open, onOpenChange, onComplete }: NewProjectW
                 </h4>
                 <ol className="text-xs text-muted-foreground space-y-1.5 ml-6 list-decimal">
                   <li>Create project folder with CLAUDE.md</li>
-                  <li>Initialize project in Maximus</li>
+                  <li>Initialize project in Lumen</li>
                   <li>Open terminal with Claude ready</li>
                   {config.designPrompt && (
                     <li>Start design conversation with your brief</li>

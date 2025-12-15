@@ -115,8 +115,8 @@ pub fn init_project(path: String) -> Result<Project, String> {
     }
 
     // Check if already initialized
-    let maximus_dir = project_path.join(".maximus");
-    if maximus_dir.exists() {
+    let lumen_dir = project_path.join(".lumen");
+    if lumen_dir.exists() {
         // Check if already in database
         let conn = db::get_connection()?;
         let mut stmt = conn
@@ -148,27 +148,27 @@ pub fn init_project(path: String) -> Result<Project, String> {
         .unwrap_or("unknown")
         .to_string();
 
-    // Create .maximus directory
-    std::fs::create_dir_all(&maximus_dir)
-        .map_err(|e| format!("Failed to create .maximus directory: {}", e))?;
+    // Create .lumen directory
+    std::fs::create_dir_all(&lumen_dir)
+        .map_err(|e| format!("Failed to create .lumen directory: {}", e))?;
 
     // Set directory permissions to 700 on Unix
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         let perms = std::fs::Permissions::from_mode(0o700);
-        std::fs::set_permissions(&maximus_dir, perms)
+        std::fs::set_permissions(&lumen_dir, perms)
             .map_err(|e| format!("Failed to set directory permissions: {}", e))?;
     }
 
     // Create subdirectories
-    std::fs::create_dir_all(maximus_dir.join("snapshots"))
+    std::fs::create_dir_all(lumen_dir.join("snapshots"))
         .map_err(|e| format!("Failed to create snapshots directory: {}", e))?;
-    std::fs::create_dir_all(maximus_dir.join("sessions"))
+    std::fs::create_dir_all(lumen_dir.join("sessions"))
         .map_err(|e| format!("Failed to create sessions directory: {}", e))?;
 
     // Create empty memory.json
-    let memory_path = maximus_dir.join("memory.json");
+    let memory_path = lumen_dir.join("memory.json");
     if !memory_path.exists() {
         std::fs::write(&memory_path, "[]")
             .map_err(|e| format!("Failed to create memory.json: {}", e))?;
@@ -254,7 +254,7 @@ pub fn scaffold_project(
             .map_err(|e| format!("Failed to write PROJECT_BRIEF.md: {}", e))?;
     }
 
-    // Initialize the project in Maximus
+    // Initialize the project in Lumen
     let project_path_str = project_path.to_string_lossy().to_string();
     init_project(project_path_str)
 }
@@ -318,7 +318,7 @@ r#"# {name}
 - Write tests for critical functionality
 
 ---
-*This project is managed with Maximus*
+*This project is managed with Lumen*
 "#,
         name = name,
         description = if description.is_empty() { "A new project" } else { description },
@@ -375,4 +375,143 @@ pub fn list_directory(path: String) -> Result<Vec<FileEntry>, String> {
     });
 
     Ok(entries)
+}
+
+/// Read CLAUDE.md from a project
+#[tauri::command]
+pub fn read_claude_md(project_path: String) -> Result<Option<String>, String> {
+    let path = Path::new(&project_path).join("CLAUDE.md");
+
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let content = fs::read_to_string(&path)
+        .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?;
+
+    Ok(Some(content))
+}
+
+/// Write CLAUDE.md to a project
+#[tauri::command]
+pub fn write_claude_md(project_path: String, content: String) -> Result<(), String> {
+    let path = Path::new(&project_path).join("CLAUDE.md");
+
+    fs::write(&path, content)
+        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
+
+    Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FailedApproach {
+    pub id: String,
+    pub description: String,
+    pub reason: Option<String>,
+    pub created_at: String,
+}
+
+/// Get failed approaches for a project
+#[tauri::command]
+pub fn get_failed_approaches(project_path: String) -> Result<Vec<FailedApproach>, String> {
+    let path = Path::new(&project_path)
+        .join(".lumen")
+        .join("failed_approaches.json");
+
+    if !path.exists() {
+        return Ok(vec![]);
+    }
+
+    let content = fs::read_to_string(&path)
+        .map_err(|e| format!("Failed to read failed approaches: {}", e))?;
+
+    let approaches: Vec<FailedApproach> = serde_json::from_str(&content)
+        .unwrap_or_default();
+
+    Ok(approaches)
+}
+
+/// Add a failed approach
+#[tauri::command]
+pub fn add_failed_approach(
+    project_path: String,
+    description: String,
+    reason: Option<String>,
+) -> Result<FailedApproach, String> {
+    let lumen_dir = Path::new(&project_path).join(".lumen");
+    let path = lumen_dir.join("failed_approaches.json");
+
+    // Ensure .lumen directory exists
+    fs::create_dir_all(&lumen_dir)
+        .map_err(|e| format!("Failed to create .lumen directory: {}", e))?;
+
+    // Load existing approaches
+    let mut approaches: Vec<FailedApproach> = if path.exists() {
+        let content = fs::read_to_string(&path)
+            .map_err(|e| format!("Failed to read failed approaches: {}", e))?;
+        serde_json::from_str(&content).unwrap_or_default()
+    } else {
+        vec![]
+    };
+
+    // Create new approach
+    let approach = FailedApproach {
+        id: uuid::Uuid::new_v4().to_string(),
+        description,
+        reason,
+        created_at: chrono::Utc::now().to_rfc3339(),
+    };
+
+    approaches.push(approach.clone());
+
+    // Save
+    let content = serde_json::to_string_pretty(&approaches)
+        .map_err(|e| format!("Failed to serialize: {}", e))?;
+    fs::write(&path, content)
+        .map_err(|e| format!("Failed to write: {}", e))?;
+
+    Ok(approach)
+}
+
+/// Remove a failed approach
+#[tauri::command]
+pub fn remove_failed_approach(project_path: String, approach_id: String) -> Result<(), String> {
+    let path = Path::new(&project_path)
+        .join(".lumen")
+        .join("failed_approaches.json");
+
+    if !path.exists() {
+        return Ok(());
+    }
+
+    let content = fs::read_to_string(&path)
+        .map_err(|e| format!("Failed to read: {}", e))?;
+
+    let mut approaches: Vec<FailedApproach> = serde_json::from_str(&content)
+        .unwrap_or_default();
+
+    approaches.retain(|a| a.id != approach_id);
+
+    let content = serde_json::to_string_pretty(&approaches)
+        .map_err(|e| format!("Failed to serialize: {}", e))?;
+    fs::write(&path, content)
+        .map_err(|e| format!("Failed to write: {}", e))?;
+
+    Ok(())
+}
+
+/// Clear all failed approaches
+#[tauri::command]
+pub fn clear_failed_approaches(project_path: String) -> Result<(), String> {
+    let path = Path::new(&project_path)
+        .join(".lumen")
+        .join("failed_approaches.json");
+
+    if path.exists() {
+        fs::remove_file(&path)
+            .map_err(|e| format!("Failed to remove: {}", e))?;
+    }
+
+    Ok(())
 }

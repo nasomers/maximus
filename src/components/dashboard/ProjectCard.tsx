@@ -81,7 +81,7 @@ export function ProjectCard() {
               </h2>
               <p className="text-sm mt-1">
                 {isInitializing
-                  ? "Setting up Maximus for your project"
+                  ? "Setting up Lumen for your project"
                   : "Select a folder to get started"}
               </p>
             </div>

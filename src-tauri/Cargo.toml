@@ -1,12 +1,12 @@
 [package]
-name = "maximus"
+name = "lumen"
 version = "0.1.0"
-description = "Claude Code session companion - snapshots, memory, and efficiency tracking"
+description = "Lumen - Illuminate your Claude sessions. The intelligent terminal for Claude Code."
 authors = ["you"]
 edition = "2021"
 
 [lib]
-name = "maximus_lib"
+name = "lumen_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Maximus",
+  "productName": "Lumen",
   "version": "0.1.0",
-  "identifier": "com.maximus.app",
+  "identifier": "com.lumen.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Maximus",
+        "title": "Lumen",
         "width": 1200,
         "height": 800,
         "minWidth": 900,
@@ -36,7 +36,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "shortDescription": "Claude Code session companion",
-    "longDescription": "Maximus helps you get more done per Claude Code session with snapshots, persistent memory, and efficiency tracking."
+    "shortDescription": "Illuminate your Claude sessions",
+    "longDescription": "Lumen is the intelligent terminal for Claude Code. Features include Lumen Pulse (state detection), Lumen Blocks (semantic output parsing), snapshots, persistent memory, and efficiency tracking."
   }
 }

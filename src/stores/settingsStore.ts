@@ -86,7 +86,7 @@ export const useSettingsStore = create<SettingsState>()(
       resetSettings: () => set(defaultSettings),
     }),
     {
-      name: "maximus-settings",
+      name: "lumen-settings",
       onRehydrateStorage: () => (state) => {
         // Apply theme on rehydration
         if (state?.theme) {

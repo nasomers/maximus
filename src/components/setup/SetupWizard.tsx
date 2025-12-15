@@ -15,7 +15,7 @@ import {
   Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MaximusLogo } from "@/components/ui/MaximusLogo";
+import { LumenLogo } from "@/components/ui/LumenLogo";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useGhAuthStatus } from "@/hooks/useGitHub";
 import { invoke } from "@tauri-apps/api/core";
@@ -82,8 +82,8 @@ export function SetupWizard({ open, onComplete }: SetupWizardProps) {
 function WelcomeStep({ onNext }: { onNext: () => void }) {
   return (
     <div className="p-8 text-center">
-      <MaximusLogo size="lg" state="normal" className="mx-auto mb-6" />
-      <h1 className="text-2xl font-bold mb-2">Welcome to Maximus</h1>
+      <LumenLogo size="lg" state="normal" className="mx-auto mb-6" />
+      <h1 className="text-2xl font-bold mb-2">Welcome to Lumen</h1>
       <p className="text-muted-foreground mb-8">
         Your desktop companion for Claude Code.
         Let's get you set up in just a few steps.
@@ -278,7 +278,7 @@ function SyncStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }
     setError(null);
 
     try {
-      // Try to find existing maximus-sync repo
+      // Try to find existing lumen-sync repo
       const result = await invoke<{ success: boolean; url?: string; message: string }>(
         "connect_sync_repo"
       );
@@ -318,7 +318,7 @@ function SyncStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }
             <Check className="w-5 h-5" />
             <div>
               <div className="font-medium">Sync Configured</div>
-              <div className="text-sm opacity-80">Your maximus-sync repo is ready</div>
+              <div className="text-sm opacity-80">Your lumen-sync repo is ready</div>
             </div>
           </div>
 
@@ -362,7 +362,7 @@ function SyncStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }
               ) : (
                 <Cloud className="w-4 h-4" />
               )}
-              Create maximus-sync Repo
+              Create lumen-sync Repo
             </button>
 
             <button
@@ -401,7 +401,7 @@ function CompleteStep({ onFinish }: { onFinish: () => void }) {
 
       <h2 className="text-2xl font-bold mb-2">You're All Set!</h2>
       <p className="text-muted-foreground mb-8">
-        Maximus is ready to help you code with Claude.
+        Lumen is ready to help you code with Claude.
       </p>
 
       <div className="bg-secondary/30 rounded-lg p-4 text-left mb-8">
@@ -431,7 +431,7 @@ function CompleteStep({ onFinish }: { onFinish: () => void }) {
         className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
       >
         <Rocket className="w-4 h-4" />
-        Start Using Maximus
+        Start Using Lumen
       </button>
     </div>
   );

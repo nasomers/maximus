@@ -63,9 +63,9 @@ interface RestoreFeedback {
 
 // Store feedback in localStorage for now (could be sent to backend later)
 function saveFeedback(feedback: RestoreFeedback) {
-  const existing = JSON.parse(localStorage.getItem("maximus_restore_feedback") || "[]");
+  const existing = JSON.parse(localStorage.getItem("lumen_restore_feedback") || "[]");
   existing.push({ ...feedback, savedAt: new Date().toISOString() });
-  localStorage.setItem("maximus_restore_feedback", JSON.stringify(existing));
+  localStorage.setItem("lumen_restore_feedback", JSON.stringify(existing));
 }
 
 // Feedback dialog for learning from corrections

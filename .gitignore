@@ -48,8 +48,8 @@ src-tauri/target/
 # Tauri
 src-tauri/gen/
 
-# Local Maximus data (for development)
-.maximus/
+# Local Lumen data (for development)
+.lumen/
 
 # Claude plans
 .claude/

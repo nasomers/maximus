@@ -5,15 +5,21 @@ import { TerminalContainer } from "@/components/terminal/TerminalContainer";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { BottomBar } from "@/components/bottom-bar/BottomBar";
 import { SetupWizard } from "@/components/setup/SetupWizard";
+import { CommandPalette } from "@/components/command-palette/CommandPalette";
+import { KeyboardShortcuts, useKeyboardShortcutsPanel } from "@/components/help/KeyboardShortcuts";
 import { Toaster } from "@/components/ui/sonner";
 import { useSettingsStore } from "@/stores/settingsStore";
-import { useTerminalStore } from "@/stores/terminalStore";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   const { setupComplete } = useSettingsStore();
   const [showSetup, setShowSetup] = useState(false);
+  const shortcutsPanel = useKeyboardShortcutsPanel();
+
+  // Initialize keyboard shortcuts
+  useKeyboardShortcuts();
 
   // Check if first-time setup is needed
   useEffect(() => {
@@ -21,24 +27,6 @@ function AppContent() {
       setShowSetup(true);
     }
   }, [setupComplete]);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+B: Toggle sidebar
-      if (e.ctrlKey && e.key === "b") {
-        e.preventDefault();
-        useTerminalStore.getState().toggleSidebar();
-      }
-
-      // Ctrl+T: New tab (handled in TerminalTabs)
-      // Ctrl+W: Close tab (handled in TerminalTabs)
-      // Ctrl+\: Toggle split (handled in TerminalTabs)
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0b] text-white overflow-hidden">
@@ -62,6 +50,12 @@ function AppContent() {
         open={showSetup}
         onComplete={() => setShowSetup(false)}
       />
+
+      {/* Command Palette */}
+      <CommandPalette />
+
+      {/* Keyboard Shortcuts Cheat Sheet */}
+      <KeyboardShortcuts open={shortcutsPanel.open} onClose={shortcutsPanel.close} />
 
       {/* Toast notifications */}
       <Toaster

@@ -43,9 +43,9 @@ fn get_current_project_path() -> Result<PathBuf, String> {
     env::current_dir().map_err(|e| format!("Failed to get current directory: {}", e))
 }
 
-/// Check if current directory is a Maximus project
-fn is_maximus_project(path: &PathBuf) -> bool {
-    path.join(".maximus").exists()
+/// Check if current directory is a Lumen project
+fn is_lumen_project(path: &PathBuf) -> bool {
+    path.join(".lumen").exists()
 }
 
 /// Execute CLI command
@@ -56,8 +56,8 @@ pub fn execute(command: CliCommand) -> Result<bool, String> {
         CliCommand::Save(name) => {
             let project_path = get_current_project_path()?;
 
-            if !is_maximus_project(&project_path) {
-                println!("Not a Maximus project. Run 'max init' first or open the GUI to initialize.");
+            if !is_lumen_project(&project_path) {
+                println!("Not a Lumen project. Run 'max init' first or open the GUI to initialize.");
                 return Ok(true);
             }
 
@@ -69,8 +69,8 @@ pub fn execute(command: CliCommand) -> Result<bool, String> {
 
             // TODO: Call actual snapshot creation
             // For now, just create the structure
-            let maximus_dir = project_path.join(".maximus");
-            let snapshots_dir = maximus_dir.join("snapshots");
+            let lumen_dir = project_path.join(".lumen");
+            let snapshots_dir = lumen_dir.join("snapshots");
 
             if !snapshots_dir.exists() {
                 std::fs::create_dir_all(&snapshots_dir)
@@ -84,8 +84,8 @@ pub fn execute(command: CliCommand) -> Result<bool, String> {
         CliCommand::Undo => {
             let project_path = get_current_project_path()?;
 
-            if !is_maximus_project(&project_path) {
-                println!("Not a Maximus project. Nothing to undo.");
+            if !is_lumen_project(&project_path) {
+                println!("Not a Lumen project. Nothing to undo.");
                 return Ok(true);
             }
 
@@ -99,15 +99,15 @@ pub fn execute(command: CliCommand) -> Result<bool, String> {
         CliCommand::Status => {
             let project_path = get_current_project_path()?;
 
-            println!("Maximus Status");
+            println!("Lumen Status");
             println!("──────────────");
             println!("Project: {}", project_path.display());
 
-            if is_maximus_project(&project_path) {
+            if is_lumen_project(&project_path) {
                 println!("Status: Initialized ✓");
 
-                let snapshots_dir = project_path.join(".maximus").join("snapshots");
-                let sessions_dir = project_path.join(".maximus").join("sessions");
+                let snapshots_dir = project_path.join(".lumen").join("snapshots");
+                let sessions_dir = project_path.join(".lumen").join("sessions");
 
                 // Count snapshots (simplified - would read from git)
                 let snapshot_count = if snapshots_dir.exists() {
@@ -145,7 +145,7 @@ pub fn execute(command: CliCommand) -> Result<bool, String> {
         }
 
         CliCommand::Version => {
-            println!("Maximus v{}", env!("CARGO_PKG_VERSION"));
+            println!("Lumen v{}", env!("CARGO_PKG_VERSION"));
             Ok(true)
         }
     }
@@ -153,13 +153,13 @@ pub fn execute(command: CliCommand) -> Result<bool, String> {
 
 fn print_help() {
     println!(
-        r#"Maximus - Claude Code Session Companion
+        r#"Lumen - Claude Code Session Companion
 
 USAGE:
     max [COMMAND]
 
 COMMANDS:
-    (none)      Open the Maximus GUI
+    (none)      Open the Lumen GUI
     save [name] Create a snapshot with optional name
     undo        Restore the last snapshot
     status      Show project status
@@ -173,7 +173,7 @@ EXAMPLES:
     max undo                # Restore last snapshot
     max status              # Show project info
 
-For more information, visit: https://github.com/your-repo/maximus
+For more information, visit: https://github.com/nasomers/lumen
 "#
     );
 }

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export type LogoState = "normal" | "syncing" | "warning" | "error" | "success";
 
-interface MaximusLogoProps {
+interface LumenLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
   state?: LogoState;
   showStatusDot?: boolean;
@@ -32,12 +32,12 @@ const dotColorMap: Record<LogoState, string> = {
   success: "bg-green-500",
 };
 
-export function MaximusLogo({
+export function LumenLogo({
   size = "md",
   state = "normal",
   showStatusDot = true,
   className,
-}: MaximusLogoProps) {
+}: LumenLogoProps) {
   const accentColor = accentColorMap[state];
   const lighterAccent = state === "normal" ? "#818cf8" : accentColor;
 
@@ -55,11 +55,17 @@ export function MaximusLogo({
             <stop offset="100%" stopColor="#14161a" />
           </linearGradient>
 
-          {/* M letter gradient */}
-          <linearGradient id={`m-gradient-${state}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* L letter gradient */}
+          <linearGradient id={`l-gradient-${state}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={lighterAccent} />
             <stop offset="100%" stopColor={accentColor} />
           </linearGradient>
+
+          {/* Glow effect for the lightbulb */}
+          <radialGradient id={`glow-${state}`} cx="50%" cy="30%" r="50%">
+            <stop offset="0%" stopColor={accentColor} stopOpacity="0.4" />
+            <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
+          </radialGradient>
         </defs>
 
         {/* Rounded rectangle background */}
@@ -73,11 +79,27 @@ export function MaximusLogo({
           fill={`url(#bg-gradient-${state})`}
         />
 
-        {/* M letter - clean geometric design */}
-        <path
-          d="M 16 44 L 16 20 L 24 20 L 32 32 L 40 20 L 48 20 L 48 44 L 41 44 L 41 30 L 34 40 L 30 40 L 23 30 L 23 44 Z"
-          fill={`url(#m-gradient-${state})`}
+        {/* Subtle glow behind the L */}
+        <ellipse
+          cx="32"
+          cy="28"
+          rx="16"
+          ry="12"
+          fill={`url(#glow-${state})`}
         />
+
+        {/* L letter - clean geometric design representing illumination */}
+        <path
+          d="M 22 18 L 22 46 L 42 46 L 42 39 L 29 39 L 29 18 Z"
+          fill={`url(#l-gradient-${state})`}
+        />
+
+        {/* Light rays emanating from top of L */}
+        <g fill={accentColor} opacity="0.6">
+          <rect x="24" y="12" width="2" height="4" rx="1" />
+          <rect x="30" y="10" width="2" height="5" rx="1" />
+          <rect x="36" y="12" width="2" height="4" rx="1" />
+        </g>
       </svg>
 
       {/* Status indicator dot */}

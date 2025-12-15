@@ -75,7 +75,7 @@ export function HelpModal({ open, onOpenChange }: HelpModalProps) {
 
             <div className="pt-4 mt-4 border-t border-border">
               <a
-                href="https://github.com/nasomers/maximus"
+                href="https://github.com/nasomers/lumen"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -85,7 +85,7 @@ export function HelpModal({ open, onOpenChange }: HelpModalProps) {
                 <ExternalLink className="w-3 h-3 ml-auto" />
               </a>
               <a
-                href="https://github.com/nasomers/maximus/issues"
+                href="https://github.com/nasomers/lumen/issues"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -97,7 +97,7 @@ export function HelpModal({ open, onOpenChange }: HelpModalProps) {
             </div>
 
             <div className="mt-auto pt-4 text-center">
-              <p className="text-xs text-muted-foreground">Maximus v0.1.0</p>
+              <p className="text-xs text-muted-foreground">Lumen v0.1.0</p>
             </div>
           </div>
 
@@ -118,9 +118,9 @@ function GettingStarted() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold mb-2">Welcome to Maximus</h2>
+        <h2 className="text-lg font-semibold mb-2">Welcome to Lumen</h2>
         <p className="text-muted-foreground">
-          Maximus is your desktop companion for Claude Code. It wraps your terminal workflow
+          Lumen is the intelligent terminal for Claude Code. It illuminates your workflow
           with safety nets, project memory, and quality-of-life tools.
         </p>
       </div>
@@ -238,7 +238,7 @@ function Features() {
         <FeatureCard
           icon={Cloud}
           title="Cloud Sync"
-          description="Sync your prompts, memories, and settings across machines. Uses a private GitHub repo (maximus-sync). Sensitive data is scrubbed before syncing."
+          description="Sync your prompts, memories, and settings across machines. Uses a private GitHub repo (lumen-sync). Sensitive data is scrubbed before syncing."
           color="text-indigo-500"
         />
       </div>
@@ -307,7 +307,7 @@ function Tips() {
 
         <TipCard
           title="Check Sensitive Files"
-          description="Maximus blocks commits containing .env, API keys, and credentials. If you get blocked, add those files to .gitignore."
+          description="Lumen blocks commits containing .env, API keys, and credentials. If you get blocked, add those files to .gitignore."
           type="warning"
         />
 

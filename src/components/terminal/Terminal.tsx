@@ -7,7 +7,19 @@ import { listen } from "@tauri-apps/api/event";
 import { useProjectStore } from "@/stores/projectStore";
 import { useAppStore } from "@/stores/appStore";
 import { useSessionStore, detectRiskyCommand, extractModifiedFiles } from "@/stores/sessionStore";
+import { useTerminalStore } from "@/stores/terminalStore";
 import "@xterm/xterm/css/xterm.css";
+
+// Common shell prompt patterns (bash, zsh, fish, etc.)
+const PROMPT_PATTERNS = [
+  /\$\s*$/,                    // bash default: $
+  />\s*$/,                     // powershell/cmd: >
+  /#\s*$/,                     // root shell: #
+  /❯\s*$/,                     // starship/pure: ❯
+  /➜\s*$/,                     // oh-my-zsh: ➜
+  /\)\s*$/,                    // some prompt ends with )
+  /λ\s*$/,                     // lambda prompt
+];
 
 interface TerminalProps {
   id?: string;
@@ -20,9 +32,19 @@ export function Terminal({ id = "main", onReady }: TerminalProps) {
   const fitAddonRef = useRef<FitAddon | null>(null);
   const [isReady, setIsReady] = useState(false);
   const lastProjectPathRef = useRef<string | null>(null);
+  const inputBufferRef = useRef<string>("");
+  const isCommandRunningRef = useRef<boolean>(false);
   const { currentProject } = useProjectStore();
   const { pendingTerminalCommand, setPendingTerminalCommand } = useAppStore();
   const { appendOutput, addModifiedFile, setCurrentRiskyDetection, currentRiskyDetection } = useSessionStore();
+  const { setCommandRunning, setCommandComplete } = useTerminalStore();
+
+  // Check if output contains a shell prompt
+  const detectPrompt = useCallback((output: string) => {
+    // Strip ANSI codes for pattern matching
+    const stripped = output.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '');
+    return PROMPT_PATTERNS.some(pattern => pattern.test(stripped));
+  }, []);
 
   const initTerminal = useCallback(async () => {
     if (!terminalRef.current || xtermRef.current) return;
@@ -100,6 +122,12 @@ export function Terminal({ id = "main", onReady }: TerminalProps) {
         // Extract modified files
         const files = extractModifiedFiles(output);
         files.forEach((file) => addModifiedFile(file));
+
+        // Detect command completion (prompt returned)
+        if (isCommandRunningRef.current && detectPrompt(output)) {
+          isCommandRunningRef.current = false;
+          setCommandComplete(id);
+        }
       });
 
       // Listen for PTY exit
@@ -107,8 +135,25 @@ export function Terminal({ id = "main", onReady }: TerminalProps) {
         xterm.write("\r\n\x1b[33m[Process exited]\x1b[0m\r\n");
       });
 
-      // Send input to PTY
+      // Send input to PTY and track commands
       xterm.onData((data) => {
+        // Track input for command detection
+        if (data === '\r' || data === '\n') {
+          // Enter pressed - if there's a command in the buffer, mark as running
+          const command = inputBufferRef.current.trim();
+          if (command && !isCommandRunningRef.current) {
+            isCommandRunningRef.current = true;
+            setCommandRunning(id, command);
+          }
+          inputBufferRef.current = "";
+        } else if (data === '\x7f' || data === '\b') {
+          // Backspace
+          inputBufferRef.current = inputBufferRef.current.slice(0, -1);
+        } else if (data.charCodeAt(0) >= 32) {
+          // Printable character
+          inputBufferRef.current += data;
+        }
+
         invoke("pty_write", { id, data }).catch(console.error);
       });
 
@@ -130,7 +175,7 @@ export function Terminal({ id = "main", onReady }: TerminalProps) {
       console.error("Failed to spawn PTY:", error);
       xterm.write(`\x1b[31mFailed to start terminal: ${error}\x1b[0m\r\n`);
     }
-  }, [id, currentProject?.path, onReady, appendOutput, addModifiedFile, setCurrentRiskyDetection, currentRiskyDetection]);
+  }, [id, currentProject?.path, onReady, appendOutput, addModifiedFile, setCurrentRiskyDetection, currentRiskyDetection, detectPrompt, setCommandRunning, setCommandComplete]);
 
   // Initialize terminal
   useEffect(() => {

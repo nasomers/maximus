@@ -72,6 +72,52 @@ export default {
   				'JetBrains Mono',
   				'monospace'
   			]
+  		},
+  		keyframes: {
+  			'glow-pulse': {
+  				'0%, 100%': {
+  					boxShadow: '0 0 10px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.1)'
+  				},
+  				'50%': {
+  					boxShadow: '0 0 15px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.2)'
+  				}
+  			},
+  			'glow-success': {
+  				'0%, 100%': {
+  					boxShadow: '0 0 10px rgba(34, 197, 94, 0.3)'
+  				},
+  				'50%': {
+  					boxShadow: '0 0 15px rgba(34, 197, 94, 0.5)'
+  				}
+  			},
+  			'glow-error': {
+  				'0%, 100%': {
+  					boxShadow: '0 0 10px rgba(239, 68, 68, 0.3)'
+  				},
+  				'50%': {
+  					boxShadow: '0 0 15px rgba(239, 68, 68, 0.5)'
+  				}
+  			},
+  			'fade-in': {
+  				'0%': { opacity: '0', transform: 'translateY(-10px)' },
+  				'100%': { opacity: '1', transform: 'translateY(0)' }
+  			},
+  			'slide-in-right': {
+  				'0%': { opacity: '0', transform: 'translateX(20px)' },
+  				'100%': { opacity: '1', transform: 'translateX(0)' }
+  			},
+  			'scale-in': {
+  				'0%': { opacity: '0', transform: 'scale(0.95)' },
+  				'100%': { opacity: '1', transform: 'scale(1)' }
+  			}
+  		},
+  		animation: {
+  			'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+  			'glow-success': 'glow-success 1s ease-in-out',
+  			'glow-error': 'glow-error 1s ease-in-out',
+  			'fade-in': 'fade-in 0.2s ease-out',
+  			'slide-in-right': 'slide-in-right 0.2s ease-out',
+  			'scale-in': 'scale-in 0.15s ease-out'
   		}
   	}
   },

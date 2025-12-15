@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { ChevronDown, Settings, Zap, FolderPlus, Check, Folder, Loader2, Trash2, Github, Cloud, CloudOff, HelpCircle } from "lucide-react";
-import { MaximusLogo } from "@/components/ui/MaximusLogo";
+import { LumenLogo } from "@/components/ui/LumenLogo";
 import { useProjectStore } from "@/stores/projectStore";
 import { cn } from "@/lib/utils";
 import { useProjects } from "@/hooks/useProjects";
@@ -135,8 +135,8 @@ export function Header() {
         <div className="flex items-center gap-4">
           {/* Logo/Brand */}
           <div className="flex items-center gap-2">
-            <MaximusLogo size="md" state="normal" />
-            <span className="font-semibold text-lg hidden sm:block">Maximus</span>
+            <LumenLogo size="md" state="normal" />
+            <span className="font-semibold text-lg hidden sm:block">Lumen</span>
           </div>
 
           {/* Divider */}
@@ -301,7 +301,7 @@ export function Header() {
           {/* Help */}
           <button
             onClick={() => setShowHelp(true)}
-            className="p-2 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+            className="p-2 hover:bg-secondary/50 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover-glow"
             title="Help"
           >
             <HelpCircle className="w-5 h-5" />
@@ -310,10 +310,10 @@ export function Header() {
           {/* Settings */}
           <button
             onClick={() => openSettings("appearance")}
-            className="p-2 hover:bg-secondary/50 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+            className="p-2 hover:bg-secondary/50 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:rotate-45"
             title="Settings"
           >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5 transition-transform duration-300" />
           </button>
         </div>
       </header>

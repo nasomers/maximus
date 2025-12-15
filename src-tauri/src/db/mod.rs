@@ -4,21 +4,21 @@ use std::path::PathBuf;
 /// Get the path to the database file
 fn get_db_path() -> Result<PathBuf, String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let maximus_dir = home.join(".maximus");
+    let lumen_dir = home.join(".lumen");
 
     // Create directory if it doesn't exist
-    std::fs::create_dir_all(&maximus_dir)
-        .map_err(|e| format!("Failed to create .maximus directory: {}", e))?;
+    std::fs::create_dir_all(&lumen_dir)
+        .map_err(|e| format!("Failed to create .lumen directory: {}", e))?;
 
     // Set directory permissions to 700 on Unix
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         let perms = std::fs::Permissions::from_mode(0o700);
-        let _ = std::fs::set_permissions(&maximus_dir, perms);
+        let _ = std::fs::set_permissions(&lumen_dir, perms);
     }
 
-    Ok(maximus_dir.join("maximus.db"))
+    Ok(lumen_dir.join("lumen.db"))
 }
 
 /// Initialize the database and create tables

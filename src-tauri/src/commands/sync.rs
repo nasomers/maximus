@@ -8,7 +8,7 @@ pub struct SyncRepoResult {
     pub message: String,
 }
 
-/// Create a new maximus-sync private repository
+/// Create a new lumen-sync private repository
 #[tauri::command]
 pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
     // Check if gh is authenticated
@@ -45,7 +45,7 @@ pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
 
     // Check if repo already exists
     let repo_check = Command::new("gh")
-        .args(["repo", "view", &format!("{}/maximus-sync", username)])
+        .args(["repo", "view", &format!("{}/lumen-sync", username)])
         .output();
 
     if let Ok(output) = repo_check {
@@ -53,8 +53,8 @@ pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
             // Repo already exists
             return Ok(SyncRepoResult {
                 success: true,
-                url: Some(format!("github.com/{}/maximus-sync", username)),
-                message: "Connected to existing maximus-sync repository".to_string(),
+                url: Some(format!("github.com/{}/lumen-sync", username)),
+                message: "Connected to existing lumen-sync repository".to_string(),
             });
         }
     }
@@ -64,16 +64,16 @@ pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
         .args([
             "repo",
             "create",
-            "maximus-sync",
+            "lumen-sync",
             "--private",
             "--description",
-            "Maximus sync repository - prompts, memories, and settings",
+            "Lumen sync repository - prompts, memories, and settings",
         ])
         .output()
         .map_err(|e| format!("Failed to create repo: {}", e))?;
 
     if create_output.status.success() {
-        // Clone it to ~/.maximus/sync/
+        // Clone it to ~/.lumen/sync/
         let sync_dir = get_sync_dir()?;
 
         // Remove existing sync dir if it exists
@@ -86,7 +86,7 @@ pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
             .args([
                 "repo",
                 "clone",
-                &format!("{}/maximus-sync", username),
+                &format!("{}/lumen-sync", username),
                 sync_dir.to_string_lossy().as_ref(),
             ])
             .output()
@@ -98,8 +98,8 @@ pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
 
             Ok(SyncRepoResult {
                 success: true,
-                url: Some(format!("github.com/{}/maximus-sync", username)),
-                message: "Created and configured maximus-sync repository".to_string(),
+                url: Some(format!("github.com/{}/lumen-sync", username)),
+                message: "Created and configured lumen-sync repository".to_string(),
             })
         } else {
             Ok(SyncRepoResult {
@@ -123,7 +123,7 @@ pub fn create_sync_repo() -> Result<SyncRepoResult, String> {
     }
 }
 
-/// Connect to an existing maximus-sync repository
+/// Connect to an existing lumen-sync repository
 #[tauri::command]
 pub fn connect_sync_repo() -> Result<SyncRepoResult, String> {
     // Check if gh is authenticated
@@ -160,7 +160,7 @@ pub fn connect_sync_repo() -> Result<SyncRepoResult, String> {
 
     // Check if repo exists
     let repo_check = Command::new("gh")
-        .args(["repo", "view", &format!("{}/maximus-sync", username)])
+        .args(["repo", "view", &format!("{}/lumen-sync", username)])
         .output()
         .map_err(|e| format!("Failed to check repo: {}", e))?;
 
@@ -168,11 +168,11 @@ pub fn connect_sync_repo() -> Result<SyncRepoResult, String> {
         return Ok(SyncRepoResult {
             success: false,
             url: None,
-            message: "No maximus-sync repository found. Create one first.".to_string(),
+            message: "No lumen-sync repository found. Create one first.".to_string(),
         });
     }
 
-    // Clone it to ~/.maximus/sync/
+    // Clone it to ~/.lumen/sync/
     let sync_dir = get_sync_dir()?;
 
     // Remove existing sync dir if it exists
@@ -185,7 +185,7 @@ pub fn connect_sync_repo() -> Result<SyncRepoResult, String> {
         .args([
             "repo",
             "clone",
-            &format!("{}/maximus-sync", username),
+            &format!("{}/lumen-sync", username),
             sync_dir.to_string_lossy().as_ref(),
         ])
         .output()
@@ -194,8 +194,8 @@ pub fn connect_sync_repo() -> Result<SyncRepoResult, String> {
     if clone_output.status.success() {
         Ok(SyncRepoResult {
             success: true,
-            url: Some(format!("github.com/{}/maximus-sync", username)),
-            message: "Connected to existing maximus-sync repository".to_string(),
+            url: Some(format!("github.com/{}/lumen-sync", username)),
+            message: "Connected to existing lumen-sync repository".to_string(),
         })
     } else {
         Ok(SyncRepoResult {
@@ -212,7 +212,7 @@ pub fn connect_sync_repo() -> Result<SyncRepoResult, String> {
 /// Get the sync directory path
 fn get_sync_dir() -> Result<std::path::PathBuf, String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    Ok(home.join(".maximus").join("sync"))
+    Ok(home.join(".lumen").join("sync"))
 }
 
 /// Initialize the sync directory structure
@@ -235,7 +235,7 @@ fn init_sync_structure(sync_dir: &std::path::Path) -> Result<(), String> {
     if !readme_path.exists() {
         std::fs::write(
             &readme_path,
-            "# Maximus Sync\n\nThis repository contains synced data for [Maximus](https://github.com/nasomers/maximus).\n\n- `prompts/` - Your prompt library\n- `projects/` - Project-specific memories\n- `settings.json` - App preferences\n",
+            "# Lumen Sync\n\nThis repository contains synced data for [Lumen](https://github.com/nasomers/lumen).\n\n- `prompts/` - Your prompt library\n- `projects/` - Project-specific memories\n- `settings.json` - App preferences\n",
         )
         .map_err(|e| format!("Failed to create README: {}", e))?;
     }
@@ -248,7 +248,7 @@ fn init_sync_structure(sync_dir: &std::path::Path) -> Result<(), String> {
 
     let _ = Command::new("git")
         .current_dir(sync_dir)
-        .args(["commit", "-m", "Initialize Maximus sync structure"])
+        .args(["commit", "-m", "Initialize Lumen sync structure"])
         .output();
 
     let _ = Command::new("git")
@@ -315,7 +315,7 @@ pub fn sync_push() -> Result<SyncRepoResult, String> {
     // Commit if there are changes
     let _ = Command::new("git")
         .current_dir(&sync_dir)
-        .args(["commit", "-m", "Sync from Maximus"])
+        .args(["commit", "-m", "Sync from Lumen"])
         .output();
 
     // Push

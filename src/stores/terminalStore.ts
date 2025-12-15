@@ -1,10 +1,22 @@
 import { create } from "zustand";
 
+export type CommandStatus = 'idle' | 'running' | 'success' | 'error';
+
+export interface CommandInfo {
+  command: string;
+  startTime: number;
+  endTime?: number;
+  exitCode?: number;
+  duration?: number;
+}
+
 export interface TerminalTab {
   id: string;
   title: string;
   cwd: string;
   isActive: boolean;
+  status: CommandStatus;
+  lastCommand?: CommandInfo;
 }
 
 interface TerminalState {
@@ -24,6 +36,11 @@ interface TerminalState {
   setLayout: (layout: 'single' | 'split-v' | 'split-h') => void;
   toggleSidebar: () => void;
   setSidebarWidth: (width: number) => void;
+
+  // Command status actions
+  setCommandRunning: (tabId: string, command: string) => void;
+  setCommandComplete: (tabId: string, exitCode?: number) => void;
+  getTabStatus: (tabId: string) => CommandStatus;
 }
 
 let tabCounter = 0;
@@ -47,6 +64,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       title: `Terminal ${tabNumber}`,
       cwd: cwd || '',
       isActive: true,
+      status: 'idle',
     };
 
     set((state) => ({
@@ -131,5 +149,60 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
 
   setSidebarWidth: (width) => {
     set({ sidebarWidth: Math.max(200, Math.min(400, width)) });
+  },
+
+  setCommandRunning: (tabId: string, command: string) => {
+    set((state) => ({
+      tabs: state.tabs.map((t) =>
+        t.id === tabId
+          ? {
+              ...t,
+              status: 'running' as CommandStatus,
+              lastCommand: {
+                command,
+                startTime: Date.now(),
+              },
+            }
+          : t
+      ),
+    }));
+  },
+
+  setCommandComplete: (tabId: string, exitCode?: number) => {
+    set((state) => ({
+      tabs: state.tabs.map((t) => {
+        if (t.id !== tabId) return t;
+
+        const endTime = Date.now();
+        const duration = t.lastCommand ? endTime - t.lastCommand.startTime : 0;
+
+        return {
+          ...t,
+          status: (exitCode === 0 || exitCode === undefined ? 'success' : 'error') as CommandStatus,
+          lastCommand: t.lastCommand
+            ? {
+                ...t.lastCommand,
+                endTime,
+                exitCode,
+                duration,
+              }
+            : undefined,
+        };
+      }),
+    }));
+
+    // Reset to idle after a delay
+    setTimeout(() => {
+      set((state) => ({
+        tabs: state.tabs.map((t) =>
+          t.id === tabId ? { ...t, status: 'idle' as CommandStatus } : t
+        ),
+      }));
+    }, 3000);
+  },
+
+  getTabStatus: (tabId: string) => {
+    const tab = get().tabs.find((t) => t.id === tabId);
+    return tab?.status || 'idle';
   },
 }));

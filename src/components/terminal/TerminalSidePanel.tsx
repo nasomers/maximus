@@ -15,6 +15,7 @@ import {
   Terminal,
   Play,
   Zap,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -22,10 +23,12 @@ import { useSnapshots, useRestoreSnapshot } from "@/hooks/useSnapshots";
 import { useMemory } from "@/hooks/useMemory";
 import { usePrompts } from "@/hooks/usePrompts";
 import { usePackageScripts, useQuickCommands } from "@/hooks/useQuickCommands";
+import { useSemanticBlocks } from "@/hooks/useSemanticBlocks";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { ptyWrite } from "@/lib/tauri";
 import { GitPanel } from "./GitPanel";
+import { SemanticBlockList, PinnedQuestions } from "./SemanticBlock";
 
 interface CollapsibleSectionProps {
   title: string;
@@ -135,6 +138,17 @@ export function TerminalSidePanel({ terminalId }: { terminalId?: string }) {
   const { data: quickCommands = [] } = useQuickCommands();
   const restoreMutation = useRestoreSnapshot();
 
+  // Semantic blocks for Claude output parsing
+  const {
+    blocks: semanticBlocks,
+    toggleCollapsed,
+    togglePinned,
+    clearBlocks,
+    collapseAll,
+    expandAll,
+    questionBlocks,
+  } = useSemanticBlocks(terminalId || "");
+
   // Session timer
   const [elapsed, setElapsed] = useState(0);
 
@@ -181,6 +195,33 @@ export function TerminalSidePanel({ terminalId }: { terminalId?: string }) {
       <div className="py-2">
         {/* Git Status */}
         <GitPanel />
+
+        {/* Pinned Questions - Always visible when present */}
+        {questionBlocks.length > 0 && (
+          <div className="px-3 py-2">
+            <PinnedQuestions questions={questionBlocks} />
+          </div>
+        )}
+
+        {/* Claude Output Blocks */}
+        {terminalId && semanticBlocks.length > 0 && (
+          <CollapsibleSection
+            title="Claude Output"
+            icon={<Layers className="w-4 h-4" />}
+            badge={semanticBlocks.length}
+            defaultOpen={true}
+            helpText="Parsed output from Claude - collapsible for easier reading"
+          >
+            <SemanticBlockList
+              blocks={semanticBlocks}
+              onToggleCollapsed={toggleCollapsed}
+              onTogglePinned={togglePinned}
+              onCollapseAll={collapseAll}
+              onExpandAll={expandAll}
+              onClear={clearBlocks}
+            />
+          </CollapsibleSection>
+        )}
 
         {/* Quick Tips */}
         <CollapsibleSection

@@ -97,7 +97,7 @@ pub fn get_hooks_status(project_path: String) -> Result<HooksStatus, String> {
     })
 }
 
-/// Install Maximus hooks into a project's .claude/settings.json
+/// Install Lumen hooks into a project's .claude/settings.json
 #[tauri::command]
 pub fn install_hooks(project_path: String) -> Result<HooksStatus, String> {
     let claude_dir = get_claude_dir(&project_path);
@@ -118,9 +118,9 @@ pub fn install_hooks(project_path: String) -> Result<HooksStatus, String> {
 
     // Get the path to our hook scripts
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let bin_dir = home.join(".maximus").join("bin");
-    let session_end_script = bin_dir.join("maximus-session-end");
-    let inject_context_script = bin_dir.join("maximus-inject-context");
+    let bin_dir = home.join(".lumen").join("bin");
+    let session_end_script = bin_dir.join("lumen-session-end");
+    let inject_context_script = bin_dir.join("lumen-inject-context");
 
     // Create the hooks configuration with absolute paths
     let stop_hook = serde_json::json!([{
@@ -154,7 +154,7 @@ pub fn install_hooks(project_path: String) -> Result<HooksStatus, String> {
     fs::write(&settings_path, content)
         .map_err(|e| format!("Failed to write settings: {}", e))?;
 
-    // Create the hook scripts in ~/.maximus/bin/
+    // Create the hook scripts in ~/.lumen/bin/
     create_hook_scripts()?;
 
     Ok(HooksStatus {
@@ -165,7 +165,7 @@ pub fn install_hooks(project_path: String) -> Result<HooksStatus, String> {
     })
 }
 
-/// Remove Maximus hooks from a project
+/// Remove Lumen hooks from a project
 #[tauri::command]
 pub fn uninstall_hooks(project_path: String) -> Result<(), String> {
     let settings_path = get_settings_path(&project_path);
@@ -198,19 +198,19 @@ pub fn uninstall_hooks(project_path: String) -> Result<(), String> {
     Ok(())
 }
 
-/// Create the hook scripts in ~/.maximus/bin/
+/// Create the hook scripts in ~/.lumen/bin/
 fn create_hook_scripts() -> Result<(), String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let bin_dir = home.join(".maximus").join("bin");
+    let bin_dir = home.join(".lumen").join("bin");
 
     fs::create_dir_all(&bin_dir)
         .map_err(|e| format!("Failed to create bin directory: {}", e))?;
 
-    // Create maximus-session-end script
+    // Create lumen-session-end script
     // Note: This just captures metadata. Claude Code already generates summaries
     // in ~/.claude/projects/ which we read via get_claude_code_sessions.
     let session_end_script = r#"#!/bin/bash
-# Maximus Session End Hook
+# Lumen Session End Hook
 # Captures session metadata when Claude Code sessions end
 # Note: Claude Code already generates summaries - we just record metadata here
 
@@ -222,9 +222,9 @@ SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty')
 TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // empty')
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 
-# Save session metadata for Maximus to process
-MAXIMUS_DIR="$HOME/.maximus"
-SESSIONS_DIR="$MAXIMUS_DIR/session_metadata"
+# Save session metadata for Lumen to process
+LUMEN_DIR="$HOME/.lumen"
+SESSIONS_DIR="$LUMEN_DIR/session_metadata"
 mkdir -p "$SESSIONS_DIR"
 
 # Save metadata (not a full summary - Claude Code handles that)
@@ -243,7 +243,7 @@ fi
 echo '{"continue": true}'
 "#;
 
-    let session_end_path = bin_dir.join("maximus-session-end");
+    let session_end_path = bin_dir.join("lumen-session-end");
     fs::write(&session_end_path, session_end_script)
         .map_err(|e| format!("Failed to write session-end script: {}", e))?;
 
@@ -256,27 +256,43 @@ echo '{"continue": true}'
             .map_err(|e| format!("Failed to set permissions: {}", e))?;
     }
 
-    // Create maximus-inject-context script
+    // Create lumen-inject-context script
     let inject_context_script = r#"#!/bin/bash
-# Maximus Context Injection Hook
-# This script injects project memory context into the prompt
+# Lumen Context Injection Hook
+# This script injects prompt prefix and project context into prompts
 
 # Read hook input from stdin
 INPUT=$(cat)
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 
-# Check if there's a recent session memory to inject
-MAXIMUS_DIR="$HOME/.maximus"
-CONTEXT_FILE="$MAXIMUS_DIR/context_cache/$(echo "$CWD" | md5sum | cut -d' ' -f1).txt"
+LUMEN_DIR="$HOME/.lumen"
+OUTPUT=""
 
+# Check for prompt prefix (e.g., "Be concise")
+PREFIX_FILE="$LUMEN_DIR/prompt_prefix.txt"
+if [ -f "$PREFIX_FILE" ]; then
+    PREFIX=$(cat "$PREFIX_FILE")
+    if [ -n "$PREFIX" ]; then
+        OUTPUT="$PREFIX\n\n"
+    fi
+fi
+
+# Check for project-specific context
+CONTEXT_FILE="$LUMEN_DIR/context_cache/$(echo "$CWD" | md5sum | cut -d' ' -f1).txt"
 if [ -f "$CONTEXT_FILE" ]; then
-    # Output the context to be prepended to the prompt
     CONTEXT=$(cat "$CONTEXT_FILE")
-    echo "$CONTEXT"
+    if [ -n "$CONTEXT" ]; then
+        OUTPUT="${OUTPUT}${CONTEXT}"
+    fi
+fi
+
+# Output the combined prefix + context
+if [ -n "$OUTPUT" ]; then
+    echo -e "$OUTPUT"
 fi
 "#;
 
-    let inject_context_path = bin_dir.join("maximus-inject-context");
+    let inject_context_path = bin_dir.join("lumen-inject-context");
     fs::write(&inject_context_path, inject_context_script)
         .map_err(|e| format!("Failed to write inject-context script: {}", e))?;
 
@@ -299,7 +315,7 @@ fi
 #[tauri::command]
 pub fn get_pending_sessions() -> Result<Vec<serde_json::Value>, String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let summaries_dir = home.join(".maximus").join("session_metadata");
+    let summaries_dir = home.join(".lumen").join("session_metadata");
 
     if !summaries_dir.exists() {
         return Ok(vec![]);
@@ -325,11 +341,11 @@ pub fn get_pending_sessions() -> Result<Vec<serde_json::Value>, String> {
     Ok(sessions)
 }
 
-/// Link a Claude Code session to a Maximus project (using metadata from hooks)
+/// Link a Claude Code session to a Lumen project (using metadata from hooks)
 #[tauri::command]
 pub fn import_session_summary(session_id: String, project_id: String) -> Result<(), String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let metadata_file = home.join(".maximus").join("session_metadata").join(format!("{}.json", session_id));
+    let metadata_file = home.join(".lumen").join("session_metadata").join(format!("{}.json", session_id));
 
     if !metadata_file.exists() {
         return Err("Session metadata not found".to_string());
@@ -371,7 +387,7 @@ pub fn import_session_summary(session_id: String, project_id: String) -> Result<
 #[tauri::command]
 pub fn clear_pending_session(session_id: String) -> Result<(), String> {
     let home = dirs::home_dir().ok_or("Could not find home directory")?;
-    let session_file = home.join(".maximus").join("session_metadata").join(format!("{}.json", session_id));
+    let session_file = home.join(".lumen").join("session_metadata").join(format!("{}.json", session_id));
 
     if session_file.exists() {
         fs::remove_file(&session_file)
@@ -379,4 +395,43 @@ pub fn clear_pending_session(session_id: String) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+/// Set the prompt prefix that will be injected before each message
+#[tauri::command]
+pub fn set_prompt_prefix(prefix: Option<String>) -> Result<(), String> {
+    let home = dirs::home_dir().ok_or("Could not find home directory")?;
+    let lumen_dir = home.join(".lumen");
+    let prefix_file = lumen_dir.join("prompt_prefix.txt");
+
+    fs::create_dir_all(&lumen_dir)
+        .map_err(|e| format!("Failed to create .lumen directory: {}", e))?;
+
+    if let Some(p) = prefix {
+        fs::write(&prefix_file, p)
+            .map_err(|e| format!("Failed to write prefix: {}", e))?;
+    } else {
+        // Clear the prefix
+        if prefix_file.exists() {
+            fs::remove_file(&prefix_file)
+                .map_err(|e| format!("Failed to remove prefix: {}", e))?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Get the current prompt prefix
+#[tauri::command]
+pub fn get_prompt_prefix() -> Result<Option<String>, String> {
+    let home = dirs::home_dir().ok_or("Could not find home directory")?;
+    let prefix_file = home.join(".lumen").join("prompt_prefix.txt");
+
+    if prefix_file.exists() {
+        let content = fs::read_to_string(&prefix_file)
+            .map_err(|e| format!("Failed to read prefix: {}", e))?;
+        Ok(Some(content))
+    } else {
+        Ok(None)
+    }
 }

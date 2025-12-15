@@ -20,7 +20,7 @@ struct MemoryStore {
 
 /// Get the memory file path for a project
 fn get_memory_path(project_path: &str) -> std::path::PathBuf {
-    Path::new(project_path).join(".maximus").join("memory.json")
+    Path::new(project_path).join(".lumen").join("memory.json")
 }
 
 /// Load memory from disk
@@ -42,10 +42,10 @@ fn load_memory(project_path: &str) -> Result<MemoryStore, String> {
 fn save_memory(project_path: &str, store: &MemoryStore) -> Result<(), String> {
     let memory_path = get_memory_path(project_path);
 
-    // Ensure .maximus directory exists
+    // Ensure .lumen directory exists
     if let Some(parent) = memory_path.parent() {
         fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create .maximus directory: {}", e))?;
+            .map_err(|e| format!("Failed to create .lumen directory: {}", e))?;
     }
 
     let content = serde_json::to_string_pretty(store)

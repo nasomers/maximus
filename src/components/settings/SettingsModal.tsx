@@ -163,7 +163,7 @@ function TerminalSettings() {
       <div>
         <h3 className="text-sm font-medium mb-1">Shell</h3>
         <p className="text-xs text-muted-foreground mb-3">
-          Maximus uses your system's default shell
+          Lumen uses your system's default shell
         </p>
         <div className="bg-secondary/30 px-3 py-2 rounded-lg text-sm font-mono">
           {navigator.platform.includes("Win") ? "PowerShell / cmd.exe" : "$SHELL (bash/zsh)"}
@@ -193,10 +193,10 @@ function SnapshotSettings() {
       <div>
         <h3 className="text-sm font-medium mb-1">Storage</h3>
         <p className="text-xs text-muted-foreground mb-3">
-          Snapshots are stored in each project's .maximus/snapshots directory
+          Snapshots are stored in each project's .lumen/snapshots directory
         </p>
         <div className="bg-secondary/30 px-3 py-2 rounded-lg text-sm font-mono">
-          project/.maximus/snapshots/.git
+          project/.lumen/snapshots/.git
         </div>
       </div>
     </div>

@@ -1,8 +1,30 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, X, Terminal as TerminalIcon, SplitSquareHorizontal } from "lucide-react";
+import { Plus, X, Terminal as TerminalIcon, SplitSquareHorizontal, Loader2, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTerminalStore, TerminalTab } from "@/stores/terminalStore";
+import { useTerminalStore, TerminalTab, CommandStatus } from "@/stores/terminalStore";
 import { useProjectStore } from "@/stores/projectStore";
+import { ClaudeStateIndicator } from "./ClaudeStateIndicator";
+
+// Status indicator component
+function StatusIndicator({ status, className }: { status: CommandStatus; className?: string }) {
+  if (status === 'idle') {
+    return null;
+  }
+
+  return (
+    <div className={cn("shrink-0", className)}>
+      {status === 'running' && (
+        <Loader2 className="w-3 h-3 animate-spin text-[#3b82f6]" />
+      )}
+      {status === 'success' && (
+        <Check className="w-3 h-3 text-[#22c55e]" />
+      )}
+      {status === 'error' && (
+        <AlertCircle className="w-3 h-3 text-[#ef4444]" />
+      )}
+    </div>
+  );
+}
 
 interface TerminalTabsProps {
   onTabChange?: (tabId: string) => void;
@@ -68,14 +90,24 @@ export function TerminalTabs({ onTabChange }: TerminalTabsProps) {
             onClick={() => handleTabClick(tab.id)}
             onDoubleClick={() => handleDoubleClick(tab)}
             className={cn(
-              "group flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm cursor-pointer transition-all duration-150",
+              "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200",
               "hover:bg-[#1f1f23]",
               tab.id === activeTabId
-                ? "bg-[#1f1f23] text-white shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                : "text-[#a1a1aa] hover:text-white"
+                ? "bg-[#1f1f23] text-white"
+                : "text-[#a1a1aa] hover:text-white",
+              // Status-based glow effects
+              tab.status === 'running' && "glow-running",
+              tab.status === 'success' && tab.id === activeTabId && "glow-success",
+              tab.status === 'error' && tab.id === activeTabId && "glow-error",
+              tab.status === 'idle' && tab.id === activeTabId && "shadow-[0_0_15px_rgba(59,130,246,0.2)]"
             )}
           >
-            <TerminalIcon className="w-3.5 h-3.5 shrink-0" />
+            {/* Status indicator or terminal icon */}
+            {tab.status !== 'idle' ? (
+              <StatusIndicator status={tab.status} />
+            ) : (
+              <TerminalIcon className="w-3.5 h-3.5 shrink-0" />
+            )}
 
             {editingTabId === tab.id ? (
               <input
@@ -89,6 +121,15 @@ export function TerminalTabs({ onTabChange }: TerminalTabsProps) {
               />
             ) : (
               <span className="truncate max-w-[100px]">{tab.title}</span>
+            )}
+
+            {/* Duration display when command completed */}
+            {tab.lastCommand?.duration && tab.status !== 'running' && tab.status !== 'idle' && (
+              <span className="text-xs text-[#71717a]">
+                {tab.lastCommand.duration < 1000
+                  ? `${tab.lastCommand.duration}ms`
+                  : `${(tab.lastCommand.duration / 1000).toFixed(1)}s`}
+              </span>
             )}
 
             {/* Close button - only show if more than one tab */}
@@ -111,6 +152,13 @@ export function TerminalTabs({ onTabChange }: TerminalTabsProps) {
           </div>
         ))}
       </div>
+
+      {/* Claude State Indicator */}
+      {activeTabId && (
+        <div className="shrink-0 mr-2">
+          <ClaudeStateIndicator terminalId={activeTabId} variant="compact" />
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-1 shrink-0">
